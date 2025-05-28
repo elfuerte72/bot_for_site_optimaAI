@@ -1,5 +1,5 @@
 """
-Сервис для взаимодействия с OpenAI API.
+Сервис для взаимодействия с OpenAI API и RAG системой.
 """
 
 from typing import List, Optional, Dict, Any
@@ -11,6 +11,7 @@ from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_excep
 
 from src.config import Settings
 from src.models.message import Message, MessageResponse
+from src.services.rag_service import RAGService
 
 
 class OpenAIService:
@@ -28,6 +29,15 @@ class OpenAIService:
         self.system_prompt = settings.system_prompt
         self.logger = logging.getLogger(__name__)
         self.max_retries = 3
+        
+        # Инициализация RAG сервиса
+        try:
+            self.rag_service = RAGService(settings)
+            self.use_rag = True
+            self.logger.info("RAG сервис успешно инициализирован")
+        except Exception as e:
+            self.logger.error(f"Ошибка при инициализации RAG сервиса: {str(e)}")
+            self.use_rag = False
     
     async def generate_response(
         self, 
@@ -35,7 +45,7 @@ class OpenAIService:
         stream: bool = False
     ) -> MessageResponse:
         """
-        Генерация ответа с использованием OpenAI API.
+        Генерация ответа с использованием OpenAI API и RAG системы.
         
         Args:
             messages: История сообщений
@@ -44,6 +54,34 @@ class OpenAIService:
         Returns:
             MessageResponse: Ответ от модели
         """
+        # Проверяем, нужно ли использовать RAG систему
+        if self.use_rag and messages:
+            try:
+                # Извлекаем запрос пользователя из сообщений
+                query = self.rag_service.extract_query_from_messages(messages)
+                
+                if query:
+                    # Получаем ответ из RAG системы
+                    rag_response = await self.rag_service.get_rag_response(query, self.system_prompt)
+                    
+                    # Создаем ответное сообщение
+                    assistant_message = Message(
+                        role="assistant",
+                        content=rag_response
+                    )
+                    
+                    self.logger.info(f"Сгенерирован ответ с использованием RAG системы: {len(rag_response)} символов")
+                    
+                    return MessageResponse(
+                        message=assistant_message,
+                        finish_reason="stop",
+                        usage=None
+                    )
+            except Exception as e:
+                self.logger.error(f"Ошибка при использовании RAG системы: {str(e)}")
+                # Если произошла ошибка в RAG системе, продолжаем с обычным запросом к OpenAI
+        
+        # Если не используем RAG или произошла ошибка, используем стандартный подход
         # Добавляем системный промпт, если его нет в сообщениях
         has_system_prompt = any(msg.role == "system" for msg in messages)
         
