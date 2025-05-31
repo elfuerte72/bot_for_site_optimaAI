@@ -39,7 +39,7 @@ services:
     profiles:
       - with-redis
 
-  # Опциональный Nginx для reverse proxy
+  # Nginx reverse proxy с SSL поддержкой
   nginx:
     image: nginx:alpine
     ports:
@@ -48,6 +48,8 @@ services:
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
       - ./ssl:/etc/nginx/ssl:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro  # Let's Encrypt сертификаты
+      - /var/www/html:/var/www/html:ro        # Webroot для Let's Encrypt
     depends_on:
       - optimaai-bot
     restart: unless-stopped
@@ -55,6 +57,14 @@ services:
       - optimaai-network
     profiles:
       - with-nginx
+    environment:
+      - NGINX_ENVSUBST_TEMPLATE_SUFFIX=.template
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
 volumes:
   redis_data:

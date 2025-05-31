@@ -30,6 +30,7 @@ from src.middleware.logging import RequestLoggingMiddleware
 from src.middleware.rate_limit import RateLimitMiddleware
 from src.middleware.auth import AuthMiddleware
 from src.middleware.sanitization import SanitizationMiddleware
+from src.middleware.security_headers import SecurityHeadersMiddleware, DDoSProtectionMiddleware
 from src.exceptions import (
     AppBaseException, ValidationError, ConfigurationError,
     OpenAIError, RAGError, CacheError, RateLimitError
@@ -127,6 +128,23 @@ def setup_middleware(app: FastAPI, settings: Settings):
         logger.warning("Нет валидных CORS origins, добавляем localhost по умолчанию")
         validated_origins = ["http://localhost:3000"]
     
+    # Security headers middleware (должен быть первым)
+    app.add_middleware(
+        SecurityHeadersMiddleware,
+        hsts_max_age=31536000,  # 1 год
+        hsts_include_subdomains=True,
+        hsts_preload=True
+    )
+    
+    # DDoS защита (должна быть рано в цепочке)
+    app.add_middleware(
+        DDoSProtectionMiddleware,
+        max_connections_per_ip=20,
+        suspicious_threshold=100,
+        block_duration=300,  # 5 минут
+        whitelist_ips=["127.0.0.1", "::1"]  # localhost
+    )
+    
     # CORS middleware с проверенными настройками
     app.add_middleware(
         CORSMiddleware,
@@ -134,7 +152,7 @@ def setup_middleware(app: FastAPI, settings: Settings):
         allow_credentials=True,
         allow_methods=["GET", "POST"],
         allow_headers=["Authorization", "Content-Type", "X-API-Key"],
-        expose_headers=["X-Process-Time", "X-RateLimit-*"]
+        expose_headers=["X-Process-Time", "X-RateLimit-*", "X-Security-Headers"]
     )
     
     # Аутентификация (должна быть перед rate limiting)
