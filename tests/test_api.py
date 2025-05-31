@@ -2,9 +2,10 @@
 Тесты для API endpoints.
 """
 
+from unittest.mock import MagicMock, patch
+
 import pytest
 from fastapi.testclient import TestClient
-from unittest.mock import patch, MagicMock
 
 from main import app
 from src.models.message import Message, MessageRole
@@ -19,7 +20,7 @@ def client():
 @pytest.fixture
 def mock_settings():
     """Мок настроек для тестов."""
-    with patch('main.get_settings') as mock:
+    with patch("main.get_settings") as mock:
         settings = MagicMock()
         settings.openai_api_key = "test-key"
         settings.gpt_model = "gpt-4o-mini"
@@ -35,7 +36,7 @@ def test_health_endpoint(client, mock_settings):
     """Тест эндпоинта проверки здоровья."""
     response = client.get("/health")
     assert response.status_code == 200
-    
+
     data = response.json()
     assert data["status"] == "ok"
     assert "uptime" in data
@@ -48,61 +49,45 @@ def test_chat_endpoint_validation(client, mock_settings):
     # Пустой запрос
     response = client.post("/chat", json={})
     assert response.status_code == 422
-    
+
     # Неправильная структура сообщений
-    response = client.post("/chat", json={
-        "messages": []
-    })
+    response = client.post("/chat", json={"messages": []})
     assert response.status_code == 422
-    
+
     # Правильная структура
-    response = client.post("/chat", json={
-        "messages": [
-            {
-                "role": "user",
-                "content": "Тестовое сообщение"
-            }
-        ]
-    })
+    response = client.post(
+        "/chat", json={"messages": [{"role": "user", "content": "Тестовое сообщение"}]}
+    )
     # Может вернуть 500 из-за отсутствия реального OpenAI ключа
     assert response.status_code in [200, 400, 500]
 
 
-@patch('src.services.openai_service.OpenAIService')
+@patch("src.services.openai_service.OpenAIService")
 def test_chat_endpoint_success(mock_openai_service, client, mock_settings):
     """Тест успешного ответа от чата."""
     # Мокаем OpenAI сервис
     mock_service_instance = MagicMock()
     mock_openai_service.return_value = mock_service_instance
-    
+
     # Мокаем ответ
     mock_response = MagicMock()
     mock_response.message = Message(
-        role=MessageRole.ASSISTANT,
-        content="Тестовый ответ"
+        role=MessageRole.ASSISTANT, content="Тестовый ответ"
     )
     mock_response.finish_reason = "stop"
     mock_response.usage = None
     mock_response.model_dump.return_value = {
-        "message": {
-            "role": "assistant",
-            "content": "Тестовый ответ"
-        },
+        "message": {"role": "assistant", "content": "Тестовый ответ"},
         "finish_reason": "stop",
-        "usage": None
+        "usage": None,
     }
-    
+
     mock_service_instance.generate_response.return_value = mock_response
-    
-    response = client.post("/chat", json={
-        "messages": [
-            {
-                "role": "user",
-                "content": "Тестовое сообщение"
-            }
-        ]
-    })
-    
+
+    response = client.post(
+        "/chat", json={"messages": [{"role": "user", "content": "Тестовое сообщение"}]}
+    )
+
     assert response.status_code == 200
     data = response.json()
     assert "message" in data
@@ -115,11 +100,11 @@ def test_cache_endpoints(client, mock_settings):
     response = client.get("/cache/stats")
     # Может вернуть 404 если кэш не инициализирован
     assert response.status_code in [200, 404]
-    
+
     # Очистка кэша
     response = client.post("/cache/clear")
     assert response.status_code in [200, 404]
-    
+
     # Очистка устаревших записей
     response = client.post("/cache/clear-expired")
     assert response.status_code in [200, 404]
@@ -129,7 +114,7 @@ def test_metrics_endpoint(client, mock_settings):
     """Тест эндпоинта метрик."""
     response = client.get("/metrics")
     assert response.status_code == 200
-    
+
     data = response.json()
     assert "uptime_seconds" in data
     assert "cache_enabled" in data
@@ -142,7 +127,7 @@ def test_rate_limiting(client, mock_settings):
     for _ in range(5):
         response = client.get("/health")
         assert response.status_code == 200
-        
+
         # Проверяем наличие заголовков rate limiting
         assert "X-RateLimit-Limit" in response.headers
         assert "X-RateLimit-Remaining" in response.headers
@@ -150,11 +135,14 @@ def test_rate_limiting(client, mock_settings):
 
 def test_cors_headers(client, mock_settings):
     """Тест CORS заголовков."""
-    response = client.options("/health", headers={
-        "Origin": "http://localhost:3000",
-        "Access-Control-Request-Method": "GET"
-    })
-    
+    response = client.options(
+        "/health",
+        headers={
+            "Origin": "http://localhost:3000",
+            "Access-Control-Request-Method": "GET",
+        },
+    )
+
     # FastAPI автоматически обрабатывает CORS preflight
     assert response.status_code in [200, 405]
 
@@ -162,15 +150,10 @@ def test_cors_headers(client, mock_settings):
 def test_error_handling(client, mock_settings):
     """Тест обработки ошибок."""
     # Тест с некорректными данными
-    response = client.post("/chat", json={
-        "messages": [
-            {
-                "role": "invalid_role",
-                "content": "Тест"
-            }
-        ]
-    })
-    
+    response = client.post(
+        "/chat", json={"messages": [{"role": "invalid_role", "content": "Тест"}]}
+    )
+
     assert response.status_code == 422
     data = response.json()
     assert "error" in data

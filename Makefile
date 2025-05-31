@@ -42,18 +42,28 @@ test-cov:
 
 # Проверка кода
 lint:
-	flake8 src/ tests/
-	mypy src/
+	flake8 .
+	mypy src/ --ignore-missing-imports
 
 # Форматирование кода
 format:
-	black src/ tests/
-	isort src/ tests/
+	black .
+	isort .
 
 # Проверка форматирования
 check-format:
-	black --check src/ tests/
-	isort --check-only src/ tests/
+	black --check .
+	isort --check-only .
+
+# Быстрая проверка линтинга
+lint-quick:
+	flake8 --select=E9,F63,F7,F82 .
+
+# Исправление основных проблем линтинга
+lint-fix:
+	black .
+	isort .
+	autoflake --remove-all-unused-imports --recursive --remove-unused-variables --in-place . || true
 
 # Полная проверка качества кода
 quality: check-format lint test

@@ -5,6 +5,7 @@ Security Headers Middleware для добавления заголовков б�
 
 import time
 from typing import Callable
+
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 
@@ -12,7 +13,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
     """
     Middleware для добавления заголовков безопасности к HTTP ответам.
-    
+
     Добавляет следующие заголовки:
     - Strict-Transport-Security (HSTS)
     - X-Frame-Options
@@ -23,7 +24,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
     - Permissions-Policy
     - X-Permitted-Cross-Domain-Policies
     """
-    
+
     def __init__(
         self,
         app,
@@ -36,11 +37,11 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         referrer_policy: str = "strict-origin-when-cross-origin",
         csp_policy: str = None,
         permissions_policy: str = None,
-        cross_domain_policy: str = "none"
+        cross_domain_policy: str = "none",
     ):
         """
         Инициализация middleware с настройками безопасности.
-        
+
         Args:
             app: FastAPI приложение
             hsts_max_age: Время действия HSTS в секундах
@@ -63,7 +64,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         self.xss_protection = xss_protection
         self.referrer_policy = referrer_policy
         self.cross_domain_policy = cross_domain_policy
-        
+
         # Дефолтная Content Security Policy
         if csp_policy is None:
             self.csp_policy = (
@@ -83,7 +84,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
             )
         else:
             self.csp_policy = csp_policy
-        
+
         # Дефолтная Permissions Policy
         if permissions_policy is None:
             self.permissions_policy = (
@@ -103,33 +104,29 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         else:
             self.permissions_policy = permissions_policy
 
-    async def dispatch(
-        self, request: Request, call_next: Callable
-    ) -> Response:
+    async def dispatch(self, request: Request, call_next: Callable) -> Response:
         """
         Обработка запроса и добавление заголовков безопасности.
-        
+
         Args:
             request: HTTP запрос
             call_next: Следующий middleware в цепочке
-            
+
         Returns:
             Response: HTTP ответ с добавленными заголовками безопасности
         """
         # Обрабатываем запрос
         response = await call_next(request)
-        
+
         # Добавляем заголовки безопасности
         self._add_security_headers(request, response)
-        
+
         return response
 
-    def _add_security_headers(
-        self, request: Request, response: Response
-    ) -> None:
+    def _add_security_headers(self, request: Request, response: Response) -> None:
         """
         Добавляет заголовки безопасности к ответу.
-        
+
         Args:
             request: HTTP запрос
             response: HTTP ответ
@@ -178,24 +175,24 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
 class DDoSProtectionMiddleware(BaseHTTPMiddleware):
     """
     Базовая защита от DDoS атак на уровне приложения.
-    
+
     Реализует:
     - Ограничение количества одновременных соединений с одного IP
     - Детекция подозрительных паттернов запросов
     - Временная блокировка подозрительных IP
     """
-    
+
     def __init__(
         self,
         app,
         max_connections_per_ip: int = 10,
         suspicious_threshold: int = 100,
         block_duration: int = 300,  # 5 минут
-        whitelist_ips: list = None
+        whitelist_ips: list = None,
     ):
         """
         Инициализация DDoS защиты.
-        
+
         Args:
             app: FastAPI приложение
             max_connections_per_ip: Максимум соединений с одного IP
@@ -208,38 +205,36 @@ class DDoSProtectionMiddleware(BaseHTTPMiddleware):
         self.suspicious_threshold = suspicious_threshold
         self.block_duration = block_duration
         self.whitelist_ips = whitelist_ips or []
-        
+
         # Счетчики и блокировки
         self.ip_connections = {}
         self.ip_requests = {}
         self.blocked_ips = {}
         self.last_cleanup = time.time()
 
-    async def dispatch(
-        self, request: Request, call_next: Callable
-    ) -> Response:
+    async def dispatch(self, request: Request, call_next: Callable) -> Response:
         """
         Обработка запроса с проверкой DDoS защиты.
-        
+
         Args:
             request: HTTP запрос
             call_next: Следующий middleware в цепочке
-            
+
         Returns:
             Response: HTTP ответ или блокировка
         """
         client_ip = self._get_client_ip(request)
-        
+
         # Очистка старых записей каждые 60 секунд
         current_time = time.time()
         if current_time - self.last_cleanup > 60:
             self._cleanup_old_records(current_time)
             self.last_cleanup = current_time
-        
+
         # Проверяем whitelist
         if client_ip in self.whitelist_ips:
             return await call_next(request)
-        
+
         # Проверяем блокировку
         if self._is_ip_blocked(client_ip, current_time):
             return Response(
@@ -247,27 +242,24 @@ class DDoSProtectionMiddleware(BaseHTTPMiddleware):
                 status_code=429,
                 headers={
                     "Retry-After": str(self.block_duration),
-                    "X-Block-Reason": "DDoS Protection"
-                }
+                    "X-Block-Reason": "DDoS Protection",
+                },
             )
-        
+
         # Проверяем лимиты
         if self._check_rate_limits(client_ip, current_time):
             return Response(
                 content="Too Many Requests",
                 status_code=429,
-                headers={
-                    "Retry-After": "60",
-                    "X-Block-Reason": "Rate Limit Exceeded"
-                }
+                headers={"Retry-After": "60", "X-Block-Reason": "Rate Limit Exceeded"},
             )
-        
+
         # Обновляем счетчики
         self._update_counters(client_ip, current_time)
-        
+
         # Обрабатываем запрос
         response = await call_next(request)
-        
+
         return response
 
     def _get_client_ip(self, request: Request) -> str:
@@ -276,11 +268,11 @@ class DDoSProtectionMiddleware(BaseHTTPMiddleware):
         forwarded_for = request.headers.get("X-Forwarded-For")
         if forwarded_for:
             return forwarded_for.split(",")[0].strip()
-        
+
         real_ip = request.headers.get("X-Real-IP")
         if real_ip:
             return real_ip
-        
+
         return request.client.host if request.client else "unknown"
 
     def _is_ip_blocked(self, ip: str, current_time: float) -> bool:
@@ -299,31 +291,33 @@ class DDoSProtectionMiddleware(BaseHTTPMiddleware):
         # Проверяем whitelist
         if ip in self.whitelist_ips:
             return False
-            
+
         # Проверяем количество запросов за последнюю минуту
         if ip in self.ip_requests:
             recent_requests = [
-                req_time for req_time in self.ip_requests[ip]
+                req_time
+                for req_time in self.ip_requests[ip]
                 if current_time - req_time < 60
             ]
-            
+
             if len(recent_requests) > self.suspicious_threshold:
                 # Блокируем IP
                 self.blocked_ips[ip] = current_time
                 return True
-        
+
         return False
 
     def _update_counters(self, ip: str, current_time: float) -> None:
         """Обновляет счетчики запросов."""
         if ip not in self.ip_requests:
             self.ip_requests[ip] = []
-        
+
         self.ip_requests[ip].append(current_time)
-        
+
         # Оставляем только запросы за последний час
         self.ip_requests[ip] = [
-            req_time for req_time in self.ip_requests[ip]
+            req_time
+            for req_time in self.ip_requests[ip]
             if current_time - req_time < 3600
         ]
 
@@ -332,12 +326,13 @@ class DDoSProtectionMiddleware(BaseHTTPMiddleware):
         # Очищаем старые запросы (старше часа)
         for ip in list(self.ip_requests.keys()):
             self.ip_requests[ip] = [
-                req_time for req_time in self.ip_requests[ip]
+                req_time
+                for req_time in self.ip_requests[ip]
                 if current_time - req_time < 3600
             ]
             if not self.ip_requests[ip]:
                 del self.ip_requests[ip]
-        
+
         # Очищаем старые блокировки
         for ip in list(self.blocked_ips.keys()):
             if current_time - self.blocked_ips[ip] > self.block_duration:
