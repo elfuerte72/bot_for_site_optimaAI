@@ -22,8 +22,14 @@ from src.services.cache_service import CacheService
 from src.models.message import (
     ChatRequest, MessageResponse, ErrorResponse, HealthResponse
 )
+from src.validators.input_validator import (
+    validate_request_data, validate_cors_origin
+)
+from src.security.config_validator import validate_security_config
 from src.middleware.logging import RequestLoggingMiddleware
 from src.middleware.rate_limit import RateLimitMiddleware
+from src.middleware.auth import AuthMiddleware
+from src.middleware.sanitization import SanitizationMiddleware
 from src.exceptions import (
     AppBaseException, ValidationError, ConfigurationError,
     OpenAIError, RAGError, CacheError, RateLimitError
@@ -65,6 +71,13 @@ async def lifespan(app: FastAPI):
             cache_service = CacheService(ttl_seconds=settings.cache_ttl_seconds)
             logger.info("Кэш-сервис инициализирован")
         
+        # Проверяем конфигурацию безопасности
+        security_result = validate_security_config(settings)
+        if not security_result["is_secure"]:
+            logger.warning("⚠️ Обнаружены проблемы безопасности в конфигурации")
+            for issue in security_result["issues"]:
+                logger.error(f"🔴 {issue['category']}: {issue['message']}")
+        
         logger.info("Приложение успешно запущено")
         
     except Exception as e:
@@ -99,14 +112,35 @@ def setup_middleware(app: FastAPI, settings: Settings):
         app: Экземпляр FastAPI приложения
         settings: Настройки приложения
     """
-    # CORS middleware с безопасными настройками
+    # Валидация CORS origins
+    validated_origins = []
+    for origin in settings.allowed_origins:
+        is_valid, warning = validate_cors_origin(origin)
+        if is_valid:
+            validated_origins.append(origin)
+            if warning:
+                logger.warning(f"CORS origin '{origin}': {warning}")
+        else:
+            logger.error(f"Недопустимый CORS origin '{origin}': {warning}")
+    
+    if not validated_origins:
+        logger.warning("Нет валидных CORS origins, добавляем localhost по умолчанию")
+        validated_origins = ["http://localhost:3000"]
+    
+    # CORS middleware с проверенными настройками
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=settings.allowed_origins,
+        allow_origins=validated_origins,
         allow_credentials=True,
         allow_methods=["GET", "POST"],
-        allow_headers=["*"],
+        allow_headers=["Authorization", "Content-Type", "X-API-Key"],
         expose_headers=["X-Process-Time", "X-RateLimit-*"]
+    )
+    
+    # Аутентификация (должна быть перед rate limiting)
+    app.add_middleware(
+        AuthMiddleware,
+        api_key=settings.api_key
     )
     
     # Rate limiting middleware
@@ -115,7 +149,10 @@ def setup_middleware(app: FastAPI, settings: Settings):
         calls_per_minute=settings.rate_limit_per_minute
     )
     
-    # Логирование запросов
+    # Санитизация входных данных
+    app.add_middleware(SanitizationMiddleware)
+    
+    # Логирование запросов (должно быть последним)
     app.add_middleware(RequestLoggingMiddleware)
 
 
@@ -401,7 +438,48 @@ async def get_metrics():
     return metrics
 
 
+@app.get("/security/status")
+async def get_security_status(
+    settings: Settings = Depends(get_settings)
+):
+    """
+    Получение статуса безопасности приложения.
+    
+    Returns:
+        Dict: Статус безопасности
+    """
+    security_result = validate_security_config(settings)
+    
+    # Убираем чувствительную информацию для публичного API
+    public_result = {
+        "is_secure": security_result["is_secure"],
+        "security_score": security_result["security_score"],
+        "summary": security_result["summary"],
+        "issues_count": len(security_result["issues"]),
+        "warnings_count": len(security_result["warnings"]),
+        "timestamp": datetime.now().isoformat(),
+        "features": {
+            "cors_configured": len(settings.allowed_origins) > 0,
+            "api_key_auth": settings.api_key is not None,
+            "rate_limiting": settings.rate_limit_per_minute > 0,
+            "cache_enabled": settings.enable_cache,
+            "debug_mode": settings.debug
+        }
+    }
+    
+    return public_result
+
+
 if __name__ == "__main__":
+    # Проверяем безопасность перед запуском
+    security_result = validate_security_config(settings)
+    if not security_result["is_secure"]:
+        print("\n⚠️  ОБНАРУЖЕНЫ ПРОБЛЕМЫ БЕЗОПАСНОСТИ!")
+        print(f"Оценка: {security_result['security_score']}/100")
+        for issue in security_result["issues"]:
+            print(f"  • {issue['category']}: {issue['message']}")
+        print("\nРекомендуется устранить проблемы перед запуском в продакшен.\n")
+    
     uvicorn.run(
         "main:app", 
         host=settings.host, 
