@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  optimaai-bot:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - GPT_MODEL=${GPT_MODEL:-gpt-4o-mini}
+      - DEBUG=${DEBUG:-false}
+      - ENABLE_CACHE=${ENABLE_CACHE:-true}
+      - CACHE_TTL_SECONDS=${CACHE_TTL_SECONDS:-3600}
+      - RATE_LIMIT_PER_MINUTE=${RATE_LIMIT_PER_MINUTE:-100}
+    volumes:
+      - ./rag:/app/rag:ro
+      - ./rag_index:/app/rag_index
+      - ./logs:/app/logs
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - optimaai-network
+
+  # Опциональный Redis для кэширования (если нужен внешний кэш)
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    networks:
+      - optimaai-network
+    profiles:
+      - with-redis
+
+  # Опциональный Nginx для reverse proxy
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - optimaai-bot
+    restart: unless-stopped
+    networks:
+      - optimaai-network
+    profiles:
+      - with-nginx
+
+volumes:
+  redis_data:
+
+networks:
+  optimaai-network:
+    driver: bridge
