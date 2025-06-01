@@ -1,0 +1,48 @@
+# Многоэтапная сборка для оптимизации размера образа
+FROM python:3.11-slim as builder
+
+# Установка системных зависимостей
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    curl \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Создание виртуального окружения
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Копирование и установка зависимостей
+COPY requirements.txt .
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
+
+# Финальный образ
+FROM python:3.11-slim
+
+# Установка только необходимых системных зависимостей
+RUN apt-get update && apt-get install -y \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Копирование виртуального окружения
+COPY --from=builder /opt/venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Создание рабочей директории
+WORKDIR /app
+
+# Копирование кода приложения
+COPY . .
+
+# Создание директории для RAG индекса
+RUN mkdir -p /app/rag_index && chmod 777 /app/rag_index
+
+# Переменные окружения
+ENV PYTHONPATH=/app
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+
+# Heroku динамически назначает порт через переменную окружения PORT
+# Команда запуска использует эту переменную
+CMD uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}

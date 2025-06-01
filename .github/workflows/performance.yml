@@ -1,0 +1,158 @@
+name: Performance Monitoring
+
+on:
+  push:
+    branches: [ main, dev ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # Запускается каждый день в 2:00 UTC
+    - cron: '0 2 * * *'
+
+jobs:
+  performance-tests:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -r requirements-dev.txt
+        pip install locust pytest-benchmark
+    
+    - name: Run benchmark tests
+      run: |
+        pytest tests/ -k benchmark --benchmark-json=benchmark-results.json
+    
+    - name: Run load tests with Locust
+      run: |
+        # Запускаем приложение в фоне
+        python main.py &
+        APP_PID=$!
+        
+        # Ждем запуска
+        sleep 10
+        
+        # Запускаем нагрузочные тесты
+        locust -f tests/load_tests.py --headless -u 10 -r 2 -t 30s --host=http://localhost:8000 --html=load-test-report.html
+        
+        # Останавливаем приложение
+        kill $APP_PID
+    
+    - name: Memory profiling
+      run: |
+        python -m memory_profiler tests/test_memory_usage.py > memory-profile.txt
+    
+    - name: Generate performance report
+      run: |
+        echo "# Performance Report" > performance-report.md
+        echo "" >> performance-report.md
+        echo "## Benchmark Results" >> performance-report.md
+        echo "" >> performance-report.md
+        
+        if [ -f benchmark-results.json ]; then
+          python -c "
+import json
+with open('benchmark-results.json', 'r') as f:
+    data = json.load(f)
+    
+for benchmark in data['benchmarks']:
+    print(f\"- **{benchmark['name']}**: {benchmark['stats']['mean']:.4f}s (±{benchmark['stats']['stddev']:.4f}s)\")
+" >> performance-report.md
+        fi
+        
+        echo "" >> performance-report.md
+        echo "## Memory Usage" >> performance-report.md
+        echo "" >> performance-report.md
+        echo "\`\`\`" >> performance-report.md
+        cat memory-profile.txt >> performance-report.md
+        echo "\`\`\`" >> performance-report.md
+    
+    - name: Upload performance artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: performance-reports-${{ github.sha }}
+        path: |
+          benchmark-results.json
+          load-test-report.html
+          memory-profile.txt
+          performance-report.md
+    
+    - name: Comment PR with performance results
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const fs = require('fs');
+          
+          try {
+            const report = fs.readFileSync('performance-report.md', 'utf8');
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## 🚀 Performance Test Results\n\n${report}`
+            });
+          } catch (error) {
+            console.log('Could not read performance report:', error);
+          }
+
+  docker-performance:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Build Docker image
+      run: |
+        docker build -t optimaai-bot:test .
+    
+    - name: Test Docker image performance
+      run: |
+        # Запускаем контейнер
+        docker run -d --name perf-test -p 8000:8000 optimaai-bot:test
+        
+        # Ждем запуска
+        sleep 30
+        
+        # Тестируем производительность
+        echo "Testing container startup time and resource usage..."
+        
+        # Проверяем использование ресурсов
+        docker stats --no-stream perf-test > docker-stats.txt
+        
+        # Простой тест отклика
+        time curl -f http://localhost:8000/health
+        
+        # Останавливаем контейнер
+        docker stop perf-test
+        docker rm perf-test
+    
+    - name: Analyze Docker image size
+      run: |
+        echo "# Docker Image Analysis" > docker-analysis.md
+        echo "" >> docker-analysis.md
+        echo "## Image Size" >> docker-analysis.md
+        docker images optimaai-bot:test --format "table {{.Repository}}\t{{.Tag}}\t{{.Size}}" >> docker-analysis.md
+        echo "" >> docker-analysis.md
+        echo "## Layer Analysis" >> docker-analysis.md
+        docker history optimaai-bot:test --format "table {{.CreatedBy}}\t{{.Size}}" >> docker-analysis.md
+    
+    - name: Upload Docker performance artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: docker-performance-${{ github.sha }}
+        path: |
+          docker-stats.txt
+          docker-analysis.md

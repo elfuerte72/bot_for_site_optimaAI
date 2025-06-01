@@ -1,0 +1,106 @@
+2025-06-01 14:08:19,121 - src.security.config_validator - INFO - ✅ Оценка безопасности: 90/100 (ОТЛИЧНО). Предупреждений: 2.
+INFO:     Started server process [71266]
+INFO:     Waiting for application startup.
+2025-06-01 14:08:19,154 - src.middleware.auth - INFO - API Key аутентификация: включена
+2025-06-01 14:08:19,155 - main - INFO - Запуск приложения OptimaAI Bot
+2025-06-01 14:08:19,155 - main - INFO - Кэш-сервис инициализирован
+2025-06-01 14:08:19,155 - src.security.config_validator - INFO - ✅ Оценка безопасности: 90/100 (ОТЛИЧНО). Предупреждений: 2.
+2025-06-01 14:08:19,155 - main - INFO - Приложение успешно запущено
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+2025-06-01 14:08:46,220 - api - INFO - Request: POST /chat from 127.0.0.1
+2025-06-01 14:08:46,221 - src.middleware.auth - INFO - Успешная аутентификация для /chat
+2025-06-01 14:08:46,224 - main - INFO - История сообщений обрезана: 1 сообщений
+2025-06-01 14:08:46,225 - main - WARNING - Ошибка при получении из кэша: Object of type datetime is not JSON serializable
+2025-06-01 14:08:46,255 - src.services.rag_service - INFO - Инициализация RAG системы. Данные: /Users/maximpenkin/Documents/openai/site/backend/rag, Индекс: /Users/maximpenkin/Documents/openai/site/backend/rag_index
+2025-06-01 14:08:46,377 - faiss.loader - INFO - Loading faiss.
+2025-06-01 14:08:46,403 - faiss.loader - INFO - Successfully loaded faiss.
+2025-06-01 14:08:46,406 - faiss - INFO - Failed to load GPU Faiss: name 'GpuIndexIVFFlat' is not defined. Will not load constructor refs for GPU indexes. This is only an error if you're trying to use GPU Faiss.
+2025-06-01 14:08:46,413 - src.services.rag_service - INFO - RAG система успешно инициализирована
+2025-06-01 14:08:46,413 - src.services.openai_service - INFO - RAG сервис успешно инициализирован
+/Users/maximpenkin/Documents/openai/site/backend/src/rag/retriever.py:55: LangChainDeprecationWarning: The method `BaseRetriever.get_relevant_documents` was deprecated in langchain-core 0.1.46 and will be removed in 1.0. Use :meth:`~invoke` instead.
+  return retriever.get_relevant_documents(query)
+2025-06-01 14:08:47,996 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+2025-06-01 14:08:49,872 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-06-01 14:08:49,881 - src.services.openai_service - INFO - Сгенерирован ответ с использованием RAG системы: 153 символов
+2025-06-01 14:08:49,882 - main - WARNING - Ошибка при сохранении в кэш: Object of type datetime is not JSON serializable
+2025-06-01 14:08:49,886 - api - INFO - Request: GET /health from 127.0.0.1
+2025-06-01 14:08:49,888 - api - INFO - Response: POST /chat completed in 3.669s with status 200
+Индекс загружен из /Users/maximpenkin/Documents/openai/site/backend/rag_index
+INFO:     127.0.0.1:51292 - "POST /chat HTTP/1.1" 200 OK
+2025-06-01 14:08:49,890 - api - INFO - Response: GET /health completed in 0.004s with status 200
+INFO:     127.0.0.1:51316 - "GET /health HTTP/1.1" 200 OK
+2025-06-01 14:08:49,899 - api - INFO - Request: POST /chat from 127.0.0.1
+2025-06-01 14:08:49,900 - src.middleware.auth - INFO - Успешная аутентификация для /chat
+2025-06-01 14:08:49,901 - main - INFO - История сообщений обрезана: 1 сообщений
+2025-06-01 14:08:49,914 - src.services.rag_service - INFO - Инициализация RAG системы. Данные: /Users/maximpenkin/Documents/openai/site/backend/rag, Индекс: /Users/maximpenkin/Documents/openai/site/backend/rag_index
+2025-06-01 14:08:49,941 - src.services.rag_service - INFO - RAG система успешно инициализирована
+2025-06-01 14:08:49,941 - src.services.openai_service - INFO - RAG сервис успешно инициализирован
+2025-06-01 14:08:50,648 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+2025-06-01 14:08:52,129 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-06-01 14:08:52,132 - src.services.openai_service - INFO - Сгенерирован ответ с использованием RAG системы: 36 символов
+2025-06-01 14:08:52,137 - api - INFO - Response: POST /chat completed in 2.238s with status 200
+Индекс загружен из /Users/maximpenkin/Documents/openai/site/backend/rag_index
+INFO:     127.0.0.1:51316 - "POST /chat HTTP/1.1" 200 OK
+2025-06-01 14:08:52,475 - api - INFO - Request: GET /health from 127.0.0.1
+2025-06-01 14:08:52,478 - api - INFO - Response: GET /health completed in 0.003s with status 200
+INFO:     127.0.0.1:51292 - "GET /health HTTP/1.1" 200 OK
+2025-06-01 14:08:52,498 - api - INFO - Request: POST /chat from 127.0.0.1
+2025-06-01 14:08:52,498 - src.middleware.auth - INFO - Успешная аутентификация для /chat
+2025-06-01 14:08:52,499 - main - INFO - История сообщений обрезана: 1 сообщений
+2025-06-01 14:08:52,506 - src.services.rag_service - INFO - Инициализация RAG системы. Данные: /Users/maximpenkin/Documents/openai/site/backend/rag, Индекс: /Users/maximpenkin/Documents/openai/site/backend/rag_index
+2025-06-01 14:08:52,524 - src.services.rag_service - INFO - RAG система успешно инициализирована
+2025-06-01 14:08:52,524 - src.services.openai_service - INFO - RAG сервис успешно инициализирован
+2025-06-01 14:08:53,253 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+2025-06-01 14:08:56,426 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-06-01 14:08:56,428 - src.services.openai_service - INFO - Сгенерирован ответ с использованием RAG системы: 550 символов
+2025-06-01 14:08:56,433 - api - INFO - Response: POST /chat completed in 3.935s with status 200
+Индекс загружен из /Users/maximpenkin/Documents/openai/site/backend/rag_index
+INFO:     127.0.0.1:51292 - "POST /chat HTTP/1.1" 200 OK
+2025-06-01 14:09:02,840 - api - INFO - Request: POST /chat from 127.0.0.1
+2025-06-01 14:09:02,842 - src.middleware.auth - INFO - Успешная аутентификация для /chat
+2025-06-01 14:09:02,843 - main - INFO - История сообщений обрезана: 3 сообщений
+2025-06-01 14:09:02,843 - main - WARNING - Ошибка при получении из кэша: Object of type datetime is not JSON serializable
+2025-06-01 14:09:02,854 - src.services.rag_service - INFO - Инициализация RAG системы. Данные: /Users/maximpenkin/Documents/openai/site/backend/rag, Индекс: /Users/maximpenkin/Documents/openai/site/backend/rag_index
+2025-06-01 14:09:02,881 - src.services.rag_service - INFO - RAG система успешно инициализирована
+2025-06-01 14:09:02,881 - src.services.openai_service - INFO - RAG сервис успешно инициализирован
+2025-06-01 14:09:04,003 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+2025-06-01 14:09:07,587 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-06-01 14:09:07,589 - src.services.openai_service - INFO - Сгенерирован ответ с использованием RAG системы: 498 символов
+2025-06-01 14:09:07,590 - main - WARNING - Ошибка при сохранении в кэш: Object of type datetime is not JSON serializable
+2025-06-01 14:09:07,594 - api - INFO - Response: POST /chat completed in 4.754s with status 200
+Индекс загружен из /Users/maximpenkin/Documents/openai/site/backend/rag_index
+INFO:     127.0.0.1:51332 - "POST /chat HTTP/1.1" 200 OK
+2025-06-01 14:09:15,441 - api - INFO - Request: POST /chat from 127.0.0.1
+2025-06-01 14:09:15,443 - src.middleware.sanitization - WARNING - Обнаружен потенциально опасный контент: [;&|`$(){}[\]\\]
+2025-06-01 14:09:15,443 - src.middleware.auth - INFO - Успешная аутентификация для /chat
+2025-06-01 14:09:15,444 - main - INFO - История сообщений обрезана: 5 сообщений
+2025-06-01 14:09:15,444 - main - WARNING - Ошибка при получении из кэша: Object of type datetime is not JSON serializable
+2025-06-01 14:09:15,458 - src.services.rag_service - INFO - Инициализация RAG системы. Данные: /Users/maximpenkin/Documents/openai/site/backend/rag, Индекс: /Users/maximpenkin/Documents/openai/site/backend/rag_index
+2025-06-01 14:09:15,490 - src.services.rag_service - INFO - RAG система успешно инициализирована
+2025-06-01 14:09:15,490 - src.services.openai_service - INFO - RAG сервис успешно инициализирован
+2025-06-01 14:09:16,391 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+2025-06-01 14:09:19,875 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-06-01 14:09:19,877 - src.services.openai_service - INFO - Сгенерирован ответ с использованием RAG системы: 563 символов
+2025-06-01 14:09:19,877 - main - WARNING - Ошибка при сохранении в кэш: Object of type datetime is not JSON serializable
+2025-06-01 14:09:19,885 - api - INFO - Response: POST /chat completed in 4.444s with status 200
+Индекс загружен из /Users/maximpenkin/Documents/openai/site/backend/rag_index
+INFO:     127.0.0.1:51356 - "POST /chat HTTP/1.1" 200 OK
+2025-06-01 14:09:24,494 - api - INFO - Request: POST /chat from 127.0.0.1
+2025-06-01 14:09:24,496 - src.middleware.sanitization - WARNING - Обнаружен потенциально опасный контент: [;&|`$(){}[\]\\]
+2025-06-01 14:09:24,496 - src.middleware.auth - INFO - Успешная аутентификация для /chat
+2025-06-01 14:09:24,498 - main - INFO - История сообщений обрезана: 7 сообщений
+2025-06-01 14:09:24,498 - main - WARNING - Ошибка при получении из кэша: Object of type datetime is not JSON serializable
+2025-06-01 14:09:24,511 - src.services.rag_service - INFO - Инициализация RAG системы. Данные: /Users/maximpenkin/Documents/openai/site/backend/rag, Индекс: /Users/maximpenkin/Documents/openai/site/backend/rag_index
+2025-06-01 14:09:24,540 - src.services.rag_service - INFO - RAG система успешно инициализирована
+2025-06-01 14:09:24,540 - src.services.openai_service - INFO - RAG сервис успешно инициализирован
+2025-06-01 14:09:25,500 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+2025-06-01 14:10:37,261 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-06-01 14:10:37,601 - src.services.openai_service - INFO - Сгенерирован ответ с использованием RAG системы: 567 символов
+2025-06-01 14:10:37,602 - main - WARNING - Ошибка при сохранении в кэш: Object of type datetime is not JSON serializable
+2025-06-01 14:10:37,612 - api - INFO - Request: HEAD /docs from 127.0.0.1
+2025-06-01 14:10:37,614 - api - INFO - Response: POST /chat completed in 73.120s with status 200
+Индекс загружен из /Users/maximpenkin/Documents/openai/site/backend/rag_index
+INFO:     127.0.0.1:51382 - "POST /chat HTTP/1.1" 200 OK
+2025-06-01 14:10:37,615 - api - INFO - Response: HEAD /docs completed in 0.003s with status 200
+INFO:     127.0.0.1:51412 - "HEAD /docs HTTP/1.1" 200 OK

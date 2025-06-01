@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OptimaAI Bot - Тест интеграции</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .chat-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .chat-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .chat-messages {
+            height: 400px;
+            overflow-y: auto;
+            padding: 20px;
+            background-color: #fafafa;
+        }
+        
+        .message {
+            margin-bottom: 15px;
+            padding: 12px 16px;
+            border-radius: 18px;
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+        
+        .message.user {
+            background-color: #007AFF;
+            color: white;
+            margin-left: auto;
+            text-align: right;
+        }
+        
+        .message.assistant {
+            background-color: #E5E5EA;
+            color: #000;
+            margin-right: auto;
+        }
+        
+        .message.system {
+            background-color: #FFD60A;
+            color: #000;
+            text-align: center;
+            margin: 0 auto;
+            font-style: italic;
+        }
+        
+        .chat-input {
+            display: flex;
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .chat-input input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            outline: none;
+            font-size: 16px;
+        }
+        
+        .chat-input input:focus {
+            border-color: #007AFF;
+        }
+        
+        .chat-input button {
+            margin-left: 10px;
+            padding: 12px 24px;
+            background-color: #007AFF;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.2s;
+        }
+        
+        .chat-input button:hover:not(:disabled) {
+            background-color: #0056CC;
+        }
+        
+        .chat-input button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .loading {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            padding: 10px;
+        }
+        
+        .status {
+            padding: 10px 20px;
+            background-color: #f0f0f0;
+            border-top: 1px solid #e0e0e0;
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .status.online {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .status.offline {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .controls {
+            padding: 10px 20px;
+            background-color: #f8f9fa;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .controls button {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .controls button:hover {
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <h1>🤖 OptimaAI Bot</h1>
+            <p>Тестирование интеграции с RAG системой</p>
+        </div>
+        
+        <div class="chat-messages" id="messages">
+            <div class="message system">
+                Добро пожаловать! Задайте любой вопрос о компании Optima AI.
+            </div>
+        </div>
+        
+        <div class="chat-input">
+            <input 
+                type="text" 
+                id="messageInput" 
+                placeholder="Введите ваш вопрос..."
+                onkeypress="handleKeyPress(event)"
+            >
+            <button onclick="sendMessage()" id="sendButton">Отправить</button>
+        </div>
+        
+        <div class="controls">
+            <button onclick="clearChat()">Очистить чат</button>
+            <button onclick="checkHealth()">Проверить статус</button>
+            <button onclick="showExamples()">Примеры вопросов</button>
+        </div>
+        
+        <div class="status" id="status">
+            Проверка соединения...
+        </div>
+    </div>
+
+    <script>
+        class OptimaAIBot {
+            constructor() {
+                this.apiUrl = 'http://localhost:8000';
+                this.apiKey = 'your_optional_api_key_for_authentication';
+                this.conversation = [];
+                this.checkHealth();
+            }
+
+            async checkHealth() {
+                const statusEl = document.getElementById('status');
+                try {
+                    const response = await fetch(`${this.apiUrl}/health`);
+                    if (response.ok) {
+                        const data = await response.json();
+                        statusEl.textContent = `✅ Сервер онлайн (uptime: ${Math.round(data.uptime)}с)`;
+                        statusEl.className = 'status online';
+                    } else {
+                        throw new Error('Server error');
+                    }
+                } catch (error) {
+                    statusEl.textContent = '❌ Сервер недоступен';
+                    statusEl.className = 'status offline';
+                }
+            }
+
+            async sendMessage(message) {
+                const messages = [
+                    ...this.conversation,
+                    { role: 'user', content: message }
+                ];
+
+                try {
+                    const response = await fetch(`${this.apiUrl}/chat`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-API-Key': this.apiKey
+                        },
+                        body: JSON.stringify({
+                            messages: messages,
+                            use_cache: true,
+                            stream: false
+                        })
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || `HTTP ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    
+                    // Обновляем историю разговора
+                    this.conversation.push({ role: 'user', content: message });
+                    this.conversation.push({ role: 'assistant', content: data.message.content });
+                    
+                    return {
+                        success: true,
+                        message: data.message.content,
+                        processingTime: data.processing_time,
+                        fromCache: data.from_cache
+                    };
+                } catch (error) {
+                    return {
+                        success: false,
+                        error: error.message
+                    };
+                }
+            }
+
+            clearConversation() {
+                this.conversation = [];
+            }
+        }
+
+        // Глобальный экземпляр бота
+        const bot = new OptimaAIBot();
+
+        function addMessage(content, role = 'user') {
+            const messagesContainer = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${role}`;
+            messageDiv.textContent = content;
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function showLoading() {
+            const messagesContainer = document.getElementById('messages');
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'loading';
+            loadingDiv.id = 'loading';
+            loadingDiv.textContent = '🤖 Бот печатает...';
+            messagesContainer.appendChild(loadingDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function hideLoading() {
+            const loadingEl = document.getElementById('loading');
+            if (loadingEl) {
+                loadingEl.remove();
+            }
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const sendButton = document.getElementById('sendButton');
+            const message = input.value.trim();
+
+            if (!message) return;
+
+            // Отключаем интерфейс
+            input.disabled = true;
+            sendButton.disabled = true;
+            
+            // Добавляем сообщение пользователя
+            addMessage(message, 'user');
+            input.value = '';
+            
+            // Показываем индикатор загрузки
+            showLoading();
+
+            try {
+                const result = await bot.sendMessage(message);
+                
+                hideLoading();
+                
+                if (result.success) {
+                    addMessage(result.message, 'assistant');
+                    
+                    // Показываем информацию о запросе
+                    const info = `⏱️ ${result.processingTime.toFixed(2)}с ${result.fromCache ? '(из кэша)' : ''}`;
+                    addMessage(info, 'system');
+                } else {
+                    addMessage(`❌ Ошибка: ${result.error}`, 'system');
+                }
+            } catch (error) {
+                hideLoading();
+                addMessage(`❌ Неожиданная ошибка: ${error.message}`, 'system');
+            } finally {
+                // Включаем интерфейс
+                input.disabled = false;
+                sendButton.disabled = false;
+                input.focus();
+            }
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        function clearChat() {
+            const messagesContainer = document.getElementById('messages');
+            messagesContainer.innerHTML = '<div class="message system">Чат очищен. Задайте новый вопрос.</div>';
+            bot.clearConversation();
+        }
+
+        function checkHealth() {
+            bot.checkHealth();
+        }
+
+        function showExamples() {
+            const examples = [
+                "Расскажи о компании Optima AI",
+                "Какие услуги предлагает Академия?",
+                "Сколько стоит обучение AI-Full Stack?",
+                "Кто основатели компании?",
+                "Что дает прокачка навыка промптинга?"
+            ];
+            
+            const messagesContainer = document.getElementById('messages');
+            const exampleDiv = document.createElement('div');
+            exampleDiv.className = 'message system';
+            exampleDiv.innerHTML = `
+                <strong>Примеры вопросов:</strong><br>
+                ${examples.map(q => `• ${q}`).join('<br>')}
+            `;
+            messagesContainer.appendChild(exampleDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        // Автофокус на поле ввода
+        document.getElementById('messageInput').focus();
+    </script>
+</body>
+</html>

@@ -44,4 +44,21 @@ Thumbs.db
 # Project specific
 rag_index/
 .env
-.env.fixed 
+.env.fixed
+.env.local
+.env.production
+
+# Logs
+*.log
+logs/
+
+# Test coverage
+htmlcov/
+.coverage
+.pytest_cache/
+.mypy_cache/
+
+# Temporary files
+*.tmp
+*.temp
+.temp_* 

@@ -1,29 +1,28 @@
 """
 Модуль для разделения документов на чанки.
 """
-from typing import List, Dict, Union, Optional
 
-from langchain_text_splitters import RecursiveCharacterTextSplitter
+from typing import Dict, List, Optional, Union
+
 from langchain.schema import Document
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 
 class TextSplitter:
     """Класс для разделения документов на чанки."""
-    
+
     @staticmethod
     def split_documents(
-        documents: List[Document],
-        chunk_size: int = 1000,
-        chunk_overlap: int = 200
+        documents: List[Document], chunk_size: int = 1000, chunk_overlap: int = 200
     ) -> List[Document]:
         """
         Разделить документы на чанки.
-        
+
         Args:
             documents: Список документов
             chunk_size: Размер чанка
             chunk_overlap: Размер перекрытия между чанками
-            
+
         Returns:
             List[Document]: Список чанков
         """
@@ -33,5 +32,5 @@ class TextSplitter:
             length_function=len,
             is_separator_regex=False,
         )
-        
+
         return splitter.split_documents(documents)
