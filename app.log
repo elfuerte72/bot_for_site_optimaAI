@@ -1809,3 +1809,694 @@ Traceback (most recent call last):
     ...<9 lines>...
     )
 fastapi.exceptions.HTTPException: 401: {'error': 'API ключ обязателен', 'error_code': 'MISSING_API_KEY', 'details': {'required_header': 'Authorization: Bearer <api_key> или X-API-Key: <api_key>'}}
+2025-06-01 11:27:41,350 - src.validators.input_validator - WARNING - Использование '*' для CORS небезопасно в продакшене
+2025-06-01 11:27:41,351 - src.middleware.sanitization - WARNING - Обнаружен потенциально опасный контент: [;&|`$(){}[\]\\]
+2025-06-01 11:27:41,351 - src.middleware.sanitization - WARNING - Обнаружен потенциально опасный контент: [;&|`$(){}[\]\\]
+2025-06-01 11:27:41,351 - src.middleware.sanitization - WARNING - Обнаружен потенциально опасный контент: [;&|`$(){}[\]\\]
+2025-06-01 11:27:41,352 - src.middleware.sanitization - WARNING - Обнаружен потенциально опасный контент: javascript:
+2025-06-01 11:27:41,352 - src.middleware.sanitization - WARNING - Обнаружен потенциально опасный контент: [;&|`$(){}[\]\\]
+2025-06-01 11:27:41,352 - src.middleware.sanitization - WARNING - Обнаружен потенциально опасный контент: \b(union|select|insert|update|delete|drop|create|alter)\b
+2025-06-01 11:27:41,352 - src.validators.input_validator - WARNING - Обнаружен подозрительный контент: \b(ignore|forget|disregard)\s+(previous|above|system|instructions?)\b
+2025-06-01 11:27:41,352 - src.validators.input_validator - WARNING - Обнаружен подозрительный контент: \b(act\s+as|pretend\s+to\s+be|roleplay)\b
+2025-06-01 11:27:41,352 - src.validators.input_validator - WARNING - Обнаружен подозрительный контент: \b(system\s+prompt|internal\s+instructions?)\b
+2025-06-01 11:27:41,352 - src.validators.input_validator - WARNING - Обнаружен подозрительный контент: \b(rm\s+-rf|del\s+/|format\s+c:)\b
+2025-06-01 11:27:41,353 - src.validators.input_validator - WARNING - Обнаружен подозрительный контент: \b(ignore|forget|disregard)\s+(previous|above|system|instructions?)\b
+2025-06-01 11:27:41,353 - src.validators.input_validator - WARNING - Ошибка валидации запроса: Ошибки валидации: messages: Value error, Небезопасное сообщение: Сообщение содержит недопустимый контент; temperature: Input should be less than or equal to 2; max_tokens: Input should be less than or equal to 4000
+2025-06-01 11:27:41,353 - src.security.config_validator - INFO - ✅ Оценка безопасности: 95/100 (ОТЛИЧНО). Предупреждений: 1.
+2025-06-01 11:27:41,359 - src.middleware.auth - INFO - API Key аутентификация: включена
+2025-06-01 11:27:41,359 - api - INFO - Request: GET /health from testclient
+2025-06-01 11:27:41,360 - api - INFO - Response: GET /health completed in 0.001s with status 200
+2025-06-01 11:27:41,361 - httpx - INFO - HTTP Request: GET http://testserver/health "HTTP/1.1 200 OK"
+2025-06-01 11:27:41,363 - api - INFO - Request: POST /chat from testclient
+2025-06-01 11:27:41,364 - src.middleware.auth - WARNING - Отсутствует API ключ для /chat
+2025-06-01 11:27:41,364 - api - ERROR - Error: POST /chat failed after 0.001s: 401: {'error': 'API ключ обязателен', 'error_code': 'MISSING_API_KEY', 'details': {'required_header': 'Authorization: Bearer <api_key> или X-API-Key: <api_key>'}}
+2025-06-01 11:27:41,364 - main - ERROR - Неожиданная ошибка: 401: {'error': 'API ключ обязателен', 'error_code': 'MISSING_API_KEY', 'details': {'required_header': 'Authorization: Bearer <api_key> или X-API-Key: <api_key>'}}
+  + Exception Group Traceback (most recent call last):
+  |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/_utils.py", line 76, in collapse_excgroups
+  |     yield
+  |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 178, in __call__
+  |     async with anyio.create_task_group() as task_group:
+  |                ~~~~~~~~~~~~~~~~~~~~~~~^^
+  |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/anyio/_backends/_asyncio.py", line 772, in __aexit__
+  |     raise BaseExceptionGroup(
+  |         "unhandled errors in a TaskGroup", self._exceptions
+  |     ) from None
+  | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+  +-+---------------- 1 ----------------
+    | Traceback (most recent call last):
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/errors.py", line 165, in __call__
+    |     await self.app(scope, receive, _send)
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 177, in __call__
+    |     with recv_stream, send_stream, collapse_excgroups():
+    |                                    ~~~~~~~~~~~~~~~~~~^^
+    |   File "/opt/homebrew/Cellar/python@3.13/3.13.3/Frameworks/Python.framework/Versions/3.13/lib/python3.13/contextlib.py", line 162, in __exit__
+    |     self.gen.throw(value)
+    |     ~~~~~~~~~~~~~~^^^^^^^
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/_utils.py", line 82, in collapse_excgroups
+    |     raise exc
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 179, in __call__
+    |     response = await self.dispatch_func(request, call_next)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/src/middleware/logging.py", line 50, in dispatch
+    |     response = await call_next(request)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 154, in call_next
+    |     raise app_exc
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 141, in coro
+    |     await self.app(scope, receive_or_disconnect, send_no_error)
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 177, in __call__
+    |     with recv_stream, send_stream, collapse_excgroups():
+    |                                    ~~~~~~~~~~~~~~~~~~^^
+    |   File "/opt/homebrew/Cellar/python@3.13/3.13.3/Frameworks/Python.framework/Versions/3.13/lib/python3.13/contextlib.py", line 162, in __exit__
+    |     self.gen.throw(value)
+    |     ~~~~~~~~~~~~~~^^^^^^^
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/_utils.py", line 82, in collapse_excgroups
+    |     raise exc
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 179, in __call__
+    |     response = await self.dispatch_func(request, call_next)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/src/middleware/sanitization.py", line 251, in dispatch
+    |     response = await call_next(request)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 154, in call_next
+    |     raise app_exc
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 141, in coro
+    |     await self.app(scope, receive_or_disconnect, send_no_error)
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 177, in __call__
+    |     with recv_stream, send_stream, collapse_excgroups():
+    |                                    ~~~~~~~~~~~~~~~~~~^^
+    |   File "/opt/homebrew/Cellar/python@3.13/3.13.3/Frameworks/Python.framework/Versions/3.13/lib/python3.13/contextlib.py", line 162, in __exit__
+    |     self.gen.throw(value)
+    |     ~~~~~~~~~~~~~~^^^^^^^
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/_utils.py", line 82, in collapse_excgroups
+    |     raise exc
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 179, in __call__
+    |     response = await self.dispatch_func(request, call_next)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/src/middleware/rate_limit.py", line 156, in dispatch
+    |     response = await call_next(request)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 154, in call_next
+    |     raise app_exc
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 141, in coro
+    |     await self.app(scope, receive_or_disconnect, send_no_error)
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 177, in __call__
+    |     with recv_stream, send_stream, collapse_excgroups():
+    |                                    ~~~~~~~~~~~~~~~~~~^^
+    |   File "/opt/homebrew/Cellar/python@3.13/3.13.3/Frameworks/Python.framework/Versions/3.13/lib/python3.13/contextlib.py", line 162, in __exit__
+    |     self.gen.throw(value)
+    |     ~~~~~~~~~~~~~~^^^^^^^
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/_utils.py", line 82, in collapse_excgroups
+    |     raise exc
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 179, in __call__
+    |     response = await self.dispatch_func(request, call_next)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/src/middleware/auth.py", line 108, in dispatch
+    |     raise HTTPException(
+    |     ...<9 lines>...
+    |     )
+    | fastapi.exceptions.HTTPException: 401: {'error': 'API ключ обязателен', 'error_code': 'MISSING_API_KEY', 'details': {'required_header': 'Authorization: Bearer <api_key> или X-API-Key: <api_key>'}}
+    +------------------------------------
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/errors.py", line 165, in __call__
+    await self.app(scope, receive, _send)
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 177, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ~~~~~~~~~~~~~~~~~~^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.3/Frameworks/Python.framework/Versions/3.13/lib/python3.13/contextlib.py", line 162, in __exit__
+    self.gen.throw(value)
+    ~~~~~~~~~~~~~~^^^^^^^
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/_utils.py", line 82, in collapse_excgroups
+    raise exc
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 179, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/maximpenkin/Documents/openai/site/backend/src/middleware/logging.py", line 50, in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 154, in call_next
+    raise app_exc
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 141, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 177, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ~~~~~~~~~~~~~~~~~~^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.3/Frameworks/Python.framework/Versions/3.13/lib/python3.13/contextlib.py", line 162, in __exit__
+    self.gen.throw(value)
+    ~~~~~~~~~~~~~~^^^^^^^
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/_utils.py", line 82, in collapse_excgroups
+    raise exc
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 179, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/maximpenkin/Documents/openai/site/backend/src/middleware/sanitization.py", line 251, in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 154, in call_next
+    raise app_exc
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 141, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 177, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ~~~~~~~~~~~~~~~~~~^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.3/Frameworks/Python.framework/Versions/3.13/lib/python3.13/contextlib.py", line 162, in __exit__
+    self.gen.throw(value)
+    ~~~~~~~~~~~~~~^^^^^^^
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/_utils.py", line 82, in collapse_excgroups
+    raise exc
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 179, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/maximpenkin/Documents/openai/site/backend/src/middleware/rate_limit.py", line 156, in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 154, in call_next
+    raise app_exc
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 141, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 177, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ~~~~~~~~~~~~~~~~~~^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.3/Frameworks/Python.framework/Versions/3.13/lib/python3.13/contextlib.py", line 162, in __exit__
+    self.gen.throw(value)
+    ~~~~~~~~~~~~~~^^^^^^^
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/_utils.py", line 82, in collapse_excgroups
+    raise exc
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 179, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/maximpenkin/Documents/openai/site/backend/src/middleware/auth.py", line 108, in dispatch
+    raise HTTPException(
+    ...<9 lines>...
+    )
+fastapi.exceptions.HTTPException: 401: {'error': 'API ключ обязателен', 'error_code': 'MISSING_API_KEY', 'details': {'required_header': 'Authorization: Bearer <api_key> или X-API-Key: <api_key>'}}
+2025-06-01 11:27:41,522 - api - INFO - Request: POST /chat from testclient
+2025-06-01 11:27:41,522 - src.middleware.auth - WARNING - Отсутствует API ключ для /chat
+2025-06-01 11:27:41,522 - api - ERROR - Error: POST /chat failed after 0.001s: 401: {'error': 'API ключ обязателен', 'error_code': 'MISSING_API_KEY', 'details': {'required_header': 'Authorization: Bearer <api_key> или X-API-Key: <api_key>'}}
+2025-06-01 11:27:41,522 - main - ERROR - Неожиданная ошибка: 401: {'error': 'API ключ обязателен', 'error_code': 'MISSING_API_KEY', 'details': {'required_header': 'Authorization: Bearer <api_key> или X-API-Key: <api_key>'}}
+  + Exception Group Traceback (most recent call last):
+  |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/_utils.py", line 76, in collapse_excgroups
+  |     yield
+  |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 178, in __call__
+  |     async with anyio.create_task_group() as task_group:
+  |                ~~~~~~~~~~~~~~~~~~~~~~~^^
+  |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/anyio/_backends/_asyncio.py", line 772, in __aexit__
+  |     raise BaseExceptionGroup(
+  |         "unhandled errors in a TaskGroup", self._exceptions
+  |     ) from None
+  | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+  +-+---------------- 1 ----------------
+    | Traceback (most recent call last):
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/errors.py", line 165, in __call__
+    |     await self.app(scope, receive, _send)
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 177, in __call__
+    |     with recv_stream, send_stream, collapse_excgroups():
+    |                                    ~~~~~~~~~~~~~~~~~~^^
+    |   File "/opt/homebrew/Cellar/python@3.13/3.13.3/Frameworks/Python.framework/Versions/3.13/lib/python3.13/contextlib.py", line 162, in __exit__
+    |     self.gen.throw(value)
+    |     ~~~~~~~~~~~~~~^^^^^^^
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/_utils.py", line 82, in collapse_excgroups
+    |     raise exc
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 179, in __call__
+    |     response = await self.dispatch_func(request, call_next)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/src/middleware/logging.py", line 50, in dispatch
+    |     response = await call_next(request)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 154, in call_next
+    |     raise app_exc
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 141, in coro
+    |     await self.app(scope, receive_or_disconnect, send_no_error)
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 177, in __call__
+    |     with recv_stream, send_stream, collapse_excgroups():
+    |                                    ~~~~~~~~~~~~~~~~~~^^
+    |   File "/opt/homebrew/Cellar/python@3.13/3.13.3/Frameworks/Python.framework/Versions/3.13/lib/python3.13/contextlib.py", line 162, in __exit__
+    |     self.gen.throw(value)
+    |     ~~~~~~~~~~~~~~^^^^^^^
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/_utils.py", line 82, in collapse_excgroups
+    |     raise exc
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 179, in __call__
+    |     response = await self.dispatch_func(request, call_next)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/src/middleware/sanitization.py", line 251, in dispatch
+    |     response = await call_next(request)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 154, in call_next
+    |     raise app_exc
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 141, in coro
+    |     await self.app(scope, receive_or_disconnect, send_no_error)
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 177, in __call__
+    |     with recv_stream, send_stream, collapse_excgroups():
+    |                                    ~~~~~~~~~~~~~~~~~~^^
+    |   File "/opt/homebrew/Cellar/python@3.13/3.13.3/Frameworks/Python.framework/Versions/3.13/lib/python3.13/contextlib.py", line 162, in __exit__
+    |     self.gen.throw(value)
+    |     ~~~~~~~~~~~~~~^^^^^^^
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/_utils.py", line 82, in collapse_excgroups
+    |     raise exc
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 179, in __call__
+    |     response = await self.dispatch_func(request, call_next)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/src/middleware/rate_limit.py", line 156, in dispatch
+    |     response = await call_next(request)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 154, in call_next
+    |     raise app_exc
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 141, in coro
+    |     await self.app(scope, receive_or_disconnect, send_no_error)
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 177, in __call__
+    |     with recv_stream, send_stream, collapse_excgroups():
+    |                                    ~~~~~~~~~~~~~~~~~~^^
+    |   File "/opt/homebrew/Cellar/python@3.13/3.13.3/Frameworks/Python.framework/Versions/3.13/lib/python3.13/contextlib.py", line 162, in __exit__
+    |     self.gen.throw(value)
+    |     ~~~~~~~~~~~~~~^^^^^^^
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/_utils.py", line 82, in collapse_excgroups
+    |     raise exc
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 179, in __call__
+    |     response = await self.dispatch_func(request, call_next)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/src/middleware/auth.py", line 108, in dispatch
+    |     raise HTTPException(
+    |     ...<9 lines>...
+    |     )
+    | fastapi.exceptions.HTTPException: 401: {'error': 'API ключ обязателен', 'error_code': 'MISSING_API_KEY', 'details': {'required_header': 'Authorization: Bearer <api_key> или X-API-Key: <api_key>'}}
+    +------------------------------------
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/errors.py", line 165, in __call__
+    await self.app(scope, receive, _send)
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 177, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ~~~~~~~~~~~~~~~~~~^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.3/Frameworks/Python.framework/Versions/3.13/lib/python3.13/contextlib.py", line 162, in __exit__
+    self.gen.throw(value)
+    ~~~~~~~~~~~~~~^^^^^^^
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/_utils.py", line 82, in collapse_excgroups
+    raise exc
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 179, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/maximpenkin/Documents/openai/site/backend/src/middleware/logging.py", line 50, in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 154, in call_next
+    raise app_exc
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 141, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 177, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ~~~~~~~~~~~~~~~~~~^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.3/Frameworks/Python.framework/Versions/3.13/lib/python3.13/contextlib.py", line 162, in __exit__
+    self.gen.throw(value)
+    ~~~~~~~~~~~~~~^^^^^^^
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/_utils.py", line 82, in collapse_excgroups
+    raise exc
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 179, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/maximpenkin/Documents/openai/site/backend/src/middleware/sanitization.py", line 251, in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 154, in call_next
+    raise app_exc
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 141, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 177, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ~~~~~~~~~~~~~~~~~~^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.3/Frameworks/Python.framework/Versions/3.13/lib/python3.13/contextlib.py", line 162, in __exit__
+    self.gen.throw(value)
+    ~~~~~~~~~~~~~~^^^^^^^
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/_utils.py", line 82, in collapse_excgroups
+    raise exc
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 179, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/maximpenkin/Documents/openai/site/backend/src/middleware/rate_limit.py", line 156, in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 154, in call_next
+    raise app_exc
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 141, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 177, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ~~~~~~~~~~~~~~~~~~^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.3/Frameworks/Python.framework/Versions/3.13/lib/python3.13/contextlib.py", line 162, in __exit__
+    self.gen.throw(value)
+    ~~~~~~~~~~~~~~^^^^^^^
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/_utils.py", line 82, in collapse_excgroups
+    raise exc
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 179, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/maximpenkin/Documents/openai/site/backend/src/middleware/auth.py", line 108, in dispatch
+    raise HTTPException(
+    ...<9 lines>...
+    )
+fastapi.exceptions.HTTPException: 401: {'error': 'API ключ обязателен', 'error_code': 'MISSING_API_KEY', 'details': {'required_header': 'Authorization: Bearer <api_key> или X-API-Key: <api_key>'}}
+2025-06-01 11:27:41,628 - api - INFO - Request: GET /cache/stats from testclient
+2025-06-01 11:27:41,629 - src.middleware.auth - WARNING - Отсутствует API ключ для /cache/stats
+2025-06-01 11:27:41,629 - api - ERROR - Error: GET /cache/stats failed after 0.001s: 401: {'error': 'API ключ обязателен', 'error_code': 'MISSING_API_KEY', 'details': {'required_header': 'Authorization: Bearer <api_key> или X-API-Key: <api_key>'}}
+2025-06-01 11:27:41,629 - main - ERROR - Неожиданная ошибка: 401: {'error': 'API ключ обязателен', 'error_code': 'MISSING_API_KEY', 'details': {'required_header': 'Authorization: Bearer <api_key> или X-API-Key: <api_key>'}}
+  + Exception Group Traceback (most recent call last):
+  |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/_utils.py", line 76, in collapse_excgroups
+  |     yield
+  |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 178, in __call__
+  |     async with anyio.create_task_group() as task_group:
+  |                ~~~~~~~~~~~~~~~~~~~~~~~^^
+  |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/anyio/_backends/_asyncio.py", line 772, in __aexit__
+  |     raise BaseExceptionGroup(
+  |         "unhandled errors in a TaskGroup", self._exceptions
+  |     ) from None
+  | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+  +-+---------------- 1 ----------------
+    | Traceback (most recent call last):
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/errors.py", line 165, in __call__
+    |     await self.app(scope, receive, _send)
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 177, in __call__
+    |     with recv_stream, send_stream, collapse_excgroups():
+    |                                    ~~~~~~~~~~~~~~~~~~^^
+    |   File "/opt/homebrew/Cellar/python@3.13/3.13.3/Frameworks/Python.framework/Versions/3.13/lib/python3.13/contextlib.py", line 162, in __exit__
+    |     self.gen.throw(value)
+    |     ~~~~~~~~~~~~~~^^^^^^^
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/_utils.py", line 82, in collapse_excgroups
+    |     raise exc
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 179, in __call__
+    |     response = await self.dispatch_func(request, call_next)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/src/middleware/logging.py", line 50, in dispatch
+    |     response = await call_next(request)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 154, in call_next
+    |     raise app_exc
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 141, in coro
+    |     await self.app(scope, receive_or_disconnect, send_no_error)
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 177, in __call__
+    |     with recv_stream, send_stream, collapse_excgroups():
+    |                                    ~~~~~~~~~~~~~~~~~~^^
+    |   File "/opt/homebrew/Cellar/python@3.13/3.13.3/Frameworks/Python.framework/Versions/3.13/lib/python3.13/contextlib.py", line 162, in __exit__
+    |     self.gen.throw(value)
+    |     ~~~~~~~~~~~~~~^^^^^^^
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/_utils.py", line 82, in collapse_excgroups
+    |     raise exc
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 179, in __call__
+    |     response = await self.dispatch_func(request, call_next)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/src/middleware/sanitization.py", line 251, in dispatch
+    |     response = await call_next(request)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 154, in call_next
+    |     raise app_exc
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 141, in coro
+    |     await self.app(scope, receive_or_disconnect, send_no_error)
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 177, in __call__
+    |     with recv_stream, send_stream, collapse_excgroups():
+    |                                    ~~~~~~~~~~~~~~~~~~^^
+    |   File "/opt/homebrew/Cellar/python@3.13/3.13.3/Frameworks/Python.framework/Versions/3.13/lib/python3.13/contextlib.py", line 162, in __exit__
+    |     self.gen.throw(value)
+    |     ~~~~~~~~~~~~~~^^^^^^^
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/_utils.py", line 82, in collapse_excgroups
+    |     raise exc
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 179, in __call__
+    |     response = await self.dispatch_func(request, call_next)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/src/middleware/rate_limit.py", line 156, in dispatch
+    |     response = await call_next(request)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 154, in call_next
+    |     raise app_exc
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 141, in coro
+    |     await self.app(scope, receive_or_disconnect, send_no_error)
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 177, in __call__
+    |     with recv_stream, send_stream, collapse_excgroups():
+    |                                    ~~~~~~~~~~~~~~~~~~^^
+    |   File "/opt/homebrew/Cellar/python@3.13/3.13.3/Frameworks/Python.framework/Versions/3.13/lib/python3.13/contextlib.py", line 162, in __exit__
+    |     self.gen.throw(value)
+    |     ~~~~~~~~~~~~~~^^^^^^^
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/_utils.py", line 82, in collapse_excgroups
+    |     raise exc
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 179, in __call__
+    |     response = await self.dispatch_func(request, call_next)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/src/middleware/auth.py", line 108, in dispatch
+    |     raise HTTPException(
+    |     ...<9 lines>...
+    |     )
+    | fastapi.exceptions.HTTPException: 401: {'error': 'API ключ обязателен', 'error_code': 'MISSING_API_KEY', 'details': {'required_header': 'Authorization: Bearer <api_key> или X-API-Key: <api_key>'}}
+    +------------------------------------
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/errors.py", line 165, in __call__
+    await self.app(scope, receive, _send)
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 177, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ~~~~~~~~~~~~~~~~~~^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.3/Frameworks/Python.framework/Versions/3.13/lib/python3.13/contextlib.py", line 162, in __exit__
+    self.gen.throw(value)
+    ~~~~~~~~~~~~~~^^^^^^^
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/_utils.py", line 82, in collapse_excgroups
+    raise exc
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 179, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/maximpenkin/Documents/openai/site/backend/src/middleware/logging.py", line 50, in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 154, in call_next
+    raise app_exc
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 141, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 177, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ~~~~~~~~~~~~~~~~~~^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.3/Frameworks/Python.framework/Versions/3.13/lib/python3.13/contextlib.py", line 162, in __exit__
+    self.gen.throw(value)
+    ~~~~~~~~~~~~~~^^^^^^^
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/_utils.py", line 82, in collapse_excgroups
+    raise exc
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 179, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/maximpenkin/Documents/openai/site/backend/src/middleware/sanitization.py", line 251, in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 154, in call_next
+    raise app_exc
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 141, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 177, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ~~~~~~~~~~~~~~~~~~^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.3/Frameworks/Python.framework/Versions/3.13/lib/python3.13/contextlib.py", line 162, in __exit__
+    self.gen.throw(value)
+    ~~~~~~~~~~~~~~^^^^^^^
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/_utils.py", line 82, in collapse_excgroups
+    raise exc
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 179, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/maximpenkin/Documents/openai/site/backend/src/middleware/rate_limit.py", line 156, in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 154, in call_next
+    raise app_exc
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 141, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 177, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ~~~~~~~~~~~~~~~~~~^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.3/Frameworks/Python.framework/Versions/3.13/lib/python3.13/contextlib.py", line 162, in __exit__
+    self.gen.throw(value)
+    ~~~~~~~~~~~~~~^^^^^^^
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/_utils.py", line 82, in collapse_excgroups
+    raise exc
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 179, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/maximpenkin/Documents/openai/site/backend/src/middleware/auth.py", line 108, in dispatch
+    raise HTTPException(
+    ...<9 lines>...
+    )
+fastapi.exceptions.HTTPException: 401: {'error': 'API ключ обязателен', 'error_code': 'MISSING_API_KEY', 'details': {'required_header': 'Authorization: Bearer <api_key> или X-API-Key: <api_key>'}}
+2025-06-01 11:27:41,735 - api - INFO - Request: GET /metrics from testclient
+2025-06-01 11:27:41,736 - api - INFO - Response: GET /metrics completed in 0.001s with status 200
+2025-06-01 11:27:41,736 - httpx - INFO - HTTP Request: GET http://testserver/metrics "HTTP/1.1 200 OK"
+2025-06-01 11:27:41,737 - api - INFO - Request: GET /health from testclient
+2025-06-01 11:27:41,738 - api - INFO - Response: GET /health completed in 0.001s with status 200
+2025-06-01 11:27:41,738 - httpx - INFO - HTTP Request: GET http://testserver/health "HTTP/1.1 200 OK"
+2025-06-01 11:27:41,741 - api - INFO - Request: GET /health from testclient
+2025-06-01 11:27:41,742 - api - INFO - Response: GET /health completed in 0.001s with status 200
+2025-06-01 11:27:41,742 - httpx - INFO - HTTP Request: GET http://testserver/health "HTTP/1.1 200 OK"
+2025-06-01 11:27:41,743 - api - INFO - Request: POST /chat from testclient
+2025-06-01 11:27:41,743 - src.middleware.auth - WARNING - Отсутствует API ключ для /chat
+2025-06-01 11:27:41,744 - api - ERROR - Error: POST /chat failed after 0.001s: 401: {'error': 'API ключ обязателен', 'error_code': 'MISSING_API_KEY', 'details': {'required_header': 'Authorization: Bearer <api_key> или X-API-Key: <api_key>'}}
+2025-06-01 11:27:41,744 - main - ERROR - Неожиданная ошибка: 401: {'error': 'API ключ обязателен', 'error_code': 'MISSING_API_KEY', 'details': {'required_header': 'Authorization: Bearer <api_key> или X-API-Key: <api_key>'}}
+  + Exception Group Traceback (most recent call last):
+  |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/_utils.py", line 76, in collapse_excgroups
+  |     yield
+  |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 178, in __call__
+  |     async with anyio.create_task_group() as task_group:
+  |                ~~~~~~~~~~~~~~~~~~~~~~~^^
+  |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/anyio/_backends/_asyncio.py", line 772, in __aexit__
+  |     raise BaseExceptionGroup(
+  |         "unhandled errors in a TaskGroup", self._exceptions
+  |     ) from None
+  | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+  +-+---------------- 1 ----------------
+    | Traceback (most recent call last):
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/errors.py", line 165, in __call__
+    |     await self.app(scope, receive, _send)
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 177, in __call__
+    |     with recv_stream, send_stream, collapse_excgroups():
+    |                                    ~~~~~~~~~~~~~~~~~~^^
+    |   File "/opt/homebrew/Cellar/python@3.13/3.13.3/Frameworks/Python.framework/Versions/3.13/lib/python3.13/contextlib.py", line 162, in __exit__
+    |     self.gen.throw(value)
+    |     ~~~~~~~~~~~~~~^^^^^^^
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/_utils.py", line 82, in collapse_excgroups
+    |     raise exc
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 179, in __call__
+    |     response = await self.dispatch_func(request, call_next)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/src/middleware/logging.py", line 50, in dispatch
+    |     response = await call_next(request)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 154, in call_next
+    |     raise app_exc
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 141, in coro
+    |     await self.app(scope, receive_or_disconnect, send_no_error)
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 177, in __call__
+    |     with recv_stream, send_stream, collapse_excgroups():
+    |                                    ~~~~~~~~~~~~~~~~~~^^
+    |   File "/opt/homebrew/Cellar/python@3.13/3.13.3/Frameworks/Python.framework/Versions/3.13/lib/python3.13/contextlib.py", line 162, in __exit__
+    |     self.gen.throw(value)
+    |     ~~~~~~~~~~~~~~^^^^^^^
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/_utils.py", line 82, in collapse_excgroups
+    |     raise exc
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 179, in __call__
+    |     response = await self.dispatch_func(request, call_next)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/src/middleware/sanitization.py", line 251, in dispatch
+    |     response = await call_next(request)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 154, in call_next
+    |     raise app_exc
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 141, in coro
+    |     await self.app(scope, receive_or_disconnect, send_no_error)
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 177, in __call__
+    |     with recv_stream, send_stream, collapse_excgroups():
+    |                                    ~~~~~~~~~~~~~~~~~~^^
+    |   File "/opt/homebrew/Cellar/python@3.13/3.13.3/Frameworks/Python.framework/Versions/3.13/lib/python3.13/contextlib.py", line 162, in __exit__
+    |     self.gen.throw(value)
+    |     ~~~~~~~~~~~~~~^^^^^^^
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/_utils.py", line 82, in collapse_excgroups
+    |     raise exc
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 179, in __call__
+    |     response = await self.dispatch_func(request, call_next)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/src/middleware/rate_limit.py", line 156, in dispatch
+    |     response = await call_next(request)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 154, in call_next
+    |     raise app_exc
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 141, in coro
+    |     await self.app(scope, receive_or_disconnect, send_no_error)
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 177, in __call__
+    |     with recv_stream, send_stream, collapse_excgroups():
+    |                                    ~~~~~~~~~~~~~~~~~~^^
+    |   File "/opt/homebrew/Cellar/python@3.13/3.13.3/Frameworks/Python.framework/Versions/3.13/lib/python3.13/contextlib.py", line 162, in __exit__
+    |     self.gen.throw(value)
+    |     ~~~~~~~~~~~~~~^^^^^^^
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/_utils.py", line 82, in collapse_excgroups
+    |     raise exc
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 179, in __call__
+    |     response = await self.dispatch_func(request, call_next)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/Users/maximpenkin/Documents/openai/site/backend/src/middleware/auth.py", line 108, in dispatch
+    |     raise HTTPException(
+    |     ...<9 lines>...
+    |     )
+    | fastapi.exceptions.HTTPException: 401: {'error': 'API ключ обязателен', 'error_code': 'MISSING_API_KEY', 'details': {'required_header': 'Authorization: Bearer <api_key> или X-API-Key: <api_key>'}}
+    +------------------------------------
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/errors.py", line 165, in __call__
+    await self.app(scope, receive, _send)
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 177, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ~~~~~~~~~~~~~~~~~~^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.3/Frameworks/Python.framework/Versions/3.13/lib/python3.13/contextlib.py", line 162, in __exit__
+    self.gen.throw(value)
+    ~~~~~~~~~~~~~~^^^^^^^
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/_utils.py", line 82, in collapse_excgroups
+    raise exc
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 179, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/maximpenkin/Documents/openai/site/backend/src/middleware/logging.py", line 50, in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 154, in call_next
+    raise app_exc
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 141, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 177, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ~~~~~~~~~~~~~~~~~~^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.3/Frameworks/Python.framework/Versions/3.13/lib/python3.13/contextlib.py", line 162, in __exit__
+    self.gen.throw(value)
+    ~~~~~~~~~~~~~~^^^^^^^
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/_utils.py", line 82, in collapse_excgroups
+    raise exc
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 179, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/maximpenkin/Documents/openai/site/backend/src/middleware/sanitization.py", line 251, in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 154, in call_next
+    raise app_exc
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 141, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 177, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ~~~~~~~~~~~~~~~~~~^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.3/Frameworks/Python.framework/Versions/3.13/lib/python3.13/contextlib.py", line 162, in __exit__
+    self.gen.throw(value)
+    ~~~~~~~~~~~~~~^^^^^^^
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/_utils.py", line 82, in collapse_excgroups
+    raise exc
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 179, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/maximpenkin/Documents/openai/site/backend/src/middleware/rate_limit.py", line 156, in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 154, in call_next
+    raise app_exc
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 141, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 177, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ~~~~~~~~~~~~~~~~~~^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.3/Frameworks/Python.framework/Versions/3.13/lib/python3.13/contextlib.py", line 162, in __exit__
+    self.gen.throw(value)
+    ~~~~~~~~~~~~~~^^^^^^^
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/_utils.py", line 82, in collapse_excgroups
+    raise exc
+  File "/Users/maximpenkin/Documents/openai/site/backend/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 179, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/maximpenkin/Documents/openai/site/backend/src/middleware/auth.py", line 108, in dispatch
+    raise HTTPException(
+    ...<9 lines>...
+    )
+fastapi.exceptions.HTTPException: 401: {'error': 'API ключ обязателен', 'error_code': 'MISSING_API_KEY', 'details': {'required_header': 'Authorization: Bearer <api_key> или X-API-Key: <api_key>'}}

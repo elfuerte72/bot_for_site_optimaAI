@@ -1,0 +1,305 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, dev ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ main, dev ]
+
+env:
+  PYTHON_VERSION: '3.11'
+  DOCKER_IMAGE: optimaai-bot
+  REGISTRY: ghcr.io
+
+jobs:
+  # Проверка качества кода
+  quality:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.10', '3.11', '3.12']
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ matrix.python-version }}-${{ hashFiles('**/requirements*.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-${{ matrix.python-version }}-
+          ${{ runner.os }}-pip-
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -r requirements-dev.txt
+    
+    - name: Check code formatting with Black
+      run: black --check --diff src/ tests/
+    
+    - name: Check import sorting with isort
+      run: isort --check-only --diff src/ tests/
+    
+    - name: Lint with flake8
+      run: |
+        flake8 src/ tests/ --count --statistics
+        flake8 src/ tests/ --count --select=E9,F63,F7,F82 --show-source --statistics
+    
+    - name: Type check with mypy
+      run: mypy src/ --ignore-missing-imports
+    
+    - name: Run tests with pytest
+      run: |
+        pytest --cov=src --cov-report=xml --cov-report=term-missing --cov-fail-under=80 -v
+    
+    - name: Upload coverage to Codecov
+      if: matrix.python-version == '3.11'
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false
+
+  # Проверка безопасности
+  security:
+    runs-on: ubuntu-latest
+    needs: quality
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Install security tools
+      run: |
+        python -m pip install --upgrade pip
+        pip install bandit safety semgrep
+    
+    - name: Run bandit security linter
+      run: |
+        bandit -r src/ -f json -o bandit-report.json || true
+        bandit -r src/ -f txt
+    
+    - name: Run safety dependency check
+      run: |
+        safety check --json --output safety-report.json || true
+        safety check
+    
+    - name: Run semgrep security scan
+      run: |
+        semgrep --config=auto src/ --json --output=semgrep-report.json || true
+        semgrep --config=auto src/
+    
+    - name: Upload security reports
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: security-reports-${{ github.sha }}
+        path: |
+          bandit-report.json
+          safety-report.json
+          semgrep-report.json
+
+  # Сборка Docker образа
+  build:
+    runs-on: ubuntu-latest
+    needs: [quality, security]
+    if: github.event_name == 'push'
+    
+    outputs:
+      image-tag: ${{ steps.meta.outputs.tags }}
+      image-digest: ${{ steps.build.outputs.digest }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    
+    - name: Log in to Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ github.repository }}/${{ env.DOCKER_IMAGE }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=semver,pattern={{version}}
+          type=semver,pattern={{major}}.{{minor}}
+          type=sha,prefix={{branch}}-
+    
+    - name: Build and push Docker image
+      id: build
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        platforms: linux/amd64,linux/arm64
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        build-args: |
+          BUILDKIT_INLINE_CACHE=1
+
+  # Интеграционные тесты
+  integration-tests:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name == 'push'
+    
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -r requirements-dev.txt
+    
+    - name: Run integration tests
+      env:
+        REDIS_URL: redis://localhost:6379
+        TEST_ENV: integration
+      run: |
+        pytest tests/ -m integration -v --tb=short
+    
+    - name: Test Docker image
+      run: |
+        docker run --rm -d --name test-app \
+          -p 8000:8000 \
+          -e REDIS_URL=redis://host.docker.internal:6379 \
+          ${{ needs.build.outputs.image-tag }}
+        
+        # Ждем запуска приложения
+        sleep 30
+        
+        # Проверяем health endpoint
+        curl -f http://localhost:8000/health || exit 1
+        
+        # Останавливаем контейнер
+        docker stop test-app
+
+  # Деплой в staging
+  deploy-staging:
+    runs-on: ubuntu-latest
+    needs: [build, integration-tests]
+    if: github.ref == 'refs/heads/dev' && github.event_name == 'push'
+    environment: staging
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Deploy to staging
+      run: |
+        echo "Deploying to staging environment..."
+        echo "Image: ${{ needs.build.outputs.image-tag }}"
+        # Здесь будет код для деплоя в staging
+        # Например, обновление Kubernetes deployment или Docker Compose
+    
+    - name: Run smoke tests
+      run: |
+        echo "Running smoke tests on staging..."
+        # Здесь будут smoke tests для staging
+
+  # Деплой в production
+  deploy-production:
+    runs-on: ubuntu-latest
+    needs: [build, integration-tests]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment: production
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Deploy to production
+      run: |
+        echo "Deploying to production environment..."
+        echo "Image: ${{ needs.build.outputs.image-tag }}"
+        # Здесь будет код для деплоя в production
+    
+    - name: Run smoke tests
+      run: |
+        echo "Running smoke tests on production..."
+        # Здесь будут smoke tests для production
+    
+    - name: Notify deployment
+      if: always()
+      run: |
+        echo "Deployment completed. Status: ${{ job.status }}"
+        # Здесь можно добавить уведомления в Slack, Teams и т.д.
+
+  # Релиз при создании тега
+  release:
+    runs-on: ubuntu-latest
+    needs: [build, integration-tests]
+    if: startsWith(github.ref, 'refs/tags/v')
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Create Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        draft: false
+        prerelease: false
+        body: |
+          ## Changes in this release
+          
+          Docker Image: ${{ needs.build.outputs.image-tag }}
+          
+          ### Features
+          - Add your features here
+          
+          ### Bug Fixes
+          - Add your bug fixes here
+          
+          ### Breaking Changes
+          - Add breaking changes here
