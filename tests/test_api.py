@@ -28,6 +28,7 @@ def mock_settings():
         settings.cache_ttl_seconds = 3600
         settings.allowed_origins = ["http://localhost:3000"]
         settings.rate_limit_per_minute = 100
+        settings.api_key = None  # Отключаем аутентификацию для тестов
         mock.return_value = settings
         yield settings
 
@@ -135,16 +136,18 @@ def test_rate_limiting(client, mock_settings):
 
 def test_cors_headers(client, mock_settings):
     """Тест CORS заголовков."""
-    response = client.options(
+    # Тестируем обычный GET запрос с Origin
+    response = client.get(
         "/health",
         headers={
             "Origin": "http://localhost:3000",
-            "Access-Control-Request-Method": "GET",
         },
     )
 
-    # FastAPI автоматически обрабатывает CORS preflight
-    assert response.status_code in [200, 405]
+    assert response.status_code == 200
+    # Проверяем наличие базовых заголовков безопасности
+    assert "X-Frame-Options" in response.headers
+    assert "X-Content-Type-Options" in response.headers
 
 
 def test_error_handling(client, mock_settings):

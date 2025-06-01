@@ -7,7 +7,7 @@ import logging
 import re
 from typing import Any, Dict, List, Optional
 
-from pydantic import ValidationError, validator
+from pydantic import ValidationError, field_validator
 
 from src.models.message import ChatRequest, Message, MessageRole
 
@@ -19,7 +19,7 @@ class SecurityValidator:
     Класс для проверки безопасности входных данных.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Инициализация валидатора."""
         # Запрещенные слова и фразы
         self.forbidden_patterns = [
@@ -149,8 +149,9 @@ class EnhancedChatRequest(ChatRequest):
     Расширенная модель запроса с дополнительной валидацией.
     """
 
-    @validator("messages")
-    def validate_messages_security(cls, v):
+    @field_validator("messages")
+    @classmethod
+    def validate_messages_security(cls, v: List[Message]) -> List[Message]:
         """Дополнительная валидация безопасности сообщений."""
         security_validator = SecurityValidator()
 
@@ -169,8 +170,9 @@ class EnhancedChatRequest(ChatRequest):
 
         return v
 
-    @validator("temperature")
-    def validate_temperature_range(cls, v):
+    @field_validator("temperature")
+    @classmethod
+    def validate_temperature_range(cls, v: Optional[float]) -> Optional[float]:
         """Дополнительная валидация температуры."""
         if v is not None:
             if v < 0.0 or v > 2.0:
@@ -180,8 +182,9 @@ class EnhancedChatRequest(ChatRequest):
                 logger.warning(f"Высокая температура: {v}")
         return v
 
-    @validator("max_tokens")
-    def validate_max_tokens_range(cls, v):
+    @field_validator("max_tokens")
+    @classmethod
+    def validate_max_tokens_range(cls, v: Optional[int]) -> Optional[int]:
         """Дополнительная валидация максимального количества токенов."""
         if v is not None:
             if v < 1 or v > 4000:

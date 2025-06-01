@@ -7,15 +7,15 @@ from functools import lru_cache
 from typing import List, Optional
 
 from dotenv import load_dotenv
-from pydantic import Field, validator
+from pydantic import ConfigDict, Field, field_validator
 from pydantic_settings import BaseSettings
 
 # Загрузка переменных окружения из файла .env
 load_dotenv()
 
 # Константы
-DEFAULT_GPT_MODEL = "gpt-4o-mini"
-DEFAULT_TEMPERATURE = 0.7
+DEFAULT_GPT_MODEL = "gpt-4o-nano"
+DEFAULT_TEMPERATURE = 0.3
 DEFAULT_MAX_TOKENS = 1024
 DEFAULT_CACHE_TTL = 3600  # 1 час
 DEFAULT_RATE_LIMIT = 100  # запросов в минуту
@@ -94,8 +94,9 @@ class Settings(BaseSettings):
     data_dir: str = Field(default="rag", description="Директория с данными")
     persist_dir: str = Field(default="rag_index", description="Директория для индексов")
 
-    @validator("openai_api_key")
-    def validate_openai_key(cls, v):
+    @field_validator("openai_api_key")
+    @classmethod
+    def validate_openai_key(cls, v: str) -> str:
         """Валидация OpenAI API ключа."""
         if not v or len(v) < 10:
             raise ValueError(
@@ -103,19 +104,19 @@ class Settings(BaseSettings):
             )
         return v
 
-    @validator("allowed_origins")
-    def validate_origins(cls, v):
+    @field_validator("allowed_origins")
+    @classmethod
+    def validate_origins(cls, v: List[str]) -> List[str]:
         """Валидация списка разрешённых доменов."""
         if not v:
             raise ValueError("Должен быть указан хотя бы один разрешённый домен")
         return v
 
-    class Config:
-        """Конфигурация настроек."""
-
-        env_file = ".env"
-        case_sensitive = False
-        env_prefix = ""
+    model_config = ConfigDict(
+        env_file=".env",
+        case_sensitive=False,
+        env_prefix="",
+    )
 
 
 @lru_cache()

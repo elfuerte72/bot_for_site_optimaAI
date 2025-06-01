@@ -4,10 +4,12 @@ OptimaAI Bot API - улучшенный основной файл приложе
 безопасностью.
 """
 
+import json
 import logging
 import time
 from contextlib import asynccontextmanager
 from datetime import datetime
+from typing import Any
 
 import uvicorn
 from fastapi import Depends, FastAPI, HTTPException, Request
@@ -56,6 +58,21 @@ logging.basicConfig(
 )
 
 logger = logging.getLogger(__name__)
+
+
+class DateTimeEncoder(json.JSONEncoder):
+    """Custom JSON encoder для сериализации datetime объектов."""
+    
+    def default(self, obj: Any) -> Any:
+        if isinstance(obj, datetime):
+            return obj.isoformat()
+        return super().default(obj)
+
+
+def create_json_response(content: Any, status_code: int = 200, headers: dict = None) -> JSONResponse:
+    """Создает JSONResponse с поддержкой datetime сериализации."""
+    json_content = json.loads(json.dumps(content, cls=DateTimeEncoder))
+    return JSONResponse(content=json_content, status_code=status_code, headers=headers)
 
 
 @asynccontextmanager
@@ -195,13 +212,13 @@ def setup_exception_handlers(app: FastAPI):
             },
         )
 
-        return JSONResponse(
-            status_code=400,
+        return create_json_response(
             content=ErrorResponse(
                 error=exc.message,
                 error_code=exc.error_code,
                 details=exc.details,
             ).model_dump(),
+            status_code=400,
         )
 
     @app.exception_handler(PydanticValidationError)
@@ -214,13 +231,13 @@ def setup_exception_handlers(app: FastAPI):
             extra={"path": request.url.path, "errors": exc.errors()},
         )
 
-        return JSONResponse(
-            status_code=422,
+        return create_json_response(
             content=ErrorResponse(
                 error="Ошибка валидации данных",
                 error_code="VALIDATION_ERROR",
                 details={"validation_errors": exc.errors()},
             ).model_dump(),
+            status_code=422,
         )
 
     @app.exception_handler(HTTPException)
@@ -246,13 +263,13 @@ def setup_exception_handlers(app: FastAPI):
             exc_info=True,
         )
 
-        return JSONResponse(
-            status_code=500,
+        return create_json_response(
             content=ErrorResponse(
                 error="Внутренняя ошибка сервера",
                 error_code="INTERNAL_SERVER_ERROR",
                 details={"exception_type": type(exc).__name__},
             ).model_dump(),
+            status_code=500,
         )
 
 

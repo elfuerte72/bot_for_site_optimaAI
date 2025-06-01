@@ -6,7 +6,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 
 
 class MessageRole(str, Enum):
@@ -34,18 +34,20 @@ class TokenUsage(BaseModel):
     completion_tokens: int = Field(..., ge=0, description="Количество токенов в ответе")
     total_tokens: int = Field(..., ge=0, description="Общее количество токенов")
 
-    @validator("total_tokens")
-    def validate_total_tokens(cls, v, values):
+    @field_validator("total_tokens")
+    @classmethod
+    def validate_total_tokens(cls, v: int, info) -> int:
         """Валидация общего количества токенов."""
-        prompt_tokens = values.get("prompt_tokens", 0)
-        completion_tokens = values.get("completion_tokens", 0)
-        expected_total = prompt_tokens + completion_tokens
+        if info.data:
+            prompt_tokens = info.data.get("prompt_tokens", 0)
+            completion_tokens = info.data.get("completion_tokens", 0)
+            expected_total = prompt_tokens + completion_tokens
 
-        if v != expected_total:
-            raise ValueError(
-                f"total_tokens ({v}) должно равняться сумме prompt_tokens "
-                f"({prompt_tokens}) и completion_tokens ({completion_tokens})"
-            )
+            if v != expected_total:
+                raise ValueError(
+                    f"total_tokens ({v}) должно равняться сумме prompt_tokens "
+                    f"({prompt_tokens}) и completion_tokens ({completion_tokens})"
+                )
         return v
 
 
@@ -63,14 +65,16 @@ class Message(BaseModel):
         default=None, description="Дополнительные метаданные"
     )
 
-    @validator("content")
-    def validate_content(cls, v, values):
+    @field_validator("content")
+    @classmethod
+    def validate_content(cls, v: str, info) -> str:
         """Валидация содержимого сообщения."""
-        role = values.get("role")
+        if info.data:
+            role = info.data.get("role")
 
-        # Системные сообщения не могут быть пустыми
-        if role == MessageRole.SYSTEM and not v.strip():
-            raise ValueError("Системное сообщение не может быть пустым")
+            # Системные сообщения не могут быть пустыми
+            if role == MessageRole.SYSTEM and not v.strip():
+                raise ValueError("Системное сообщение не может быть пустым")
 
         # Удаляем лишние пробелы
         return v.strip()
@@ -80,7 +84,7 @@ class ChatRequest(BaseModel):
     """Модель запроса к чат-боту с валидацией."""
 
     messages: List[Message] = Field(
-        ..., min_items=1, max_items=50, description="История сообщений"
+        ..., min_length=1, max_length=50, description="История сообщений"
     )
     stream: bool = Field(
         default=False, description="Использовать потоковую передачу ответа"
@@ -101,8 +105,9 @@ class ChatRequest(BaseModel):
         description=("Максимальное количество токенов (переопределяет настройки)"),
     )
 
-    @validator("messages")
-    def validate_messages(cls, v):
+    @field_validator("messages")
+    @classmethod
+    def validate_messages(cls, v: List[Message]) -> List[Message]:
         """Валидация списка сообщений."""
         if not v:
             raise ValueError("Список сообщений не может быть пустым")
