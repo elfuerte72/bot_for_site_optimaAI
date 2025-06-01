@@ -19,6 +19,7 @@ DEFAULT_TEMPERATURE = 0.3
 DEFAULT_MAX_TOKENS = 1024
 DEFAULT_CACHE_TTL = 3600  # 1 час
 DEFAULT_RATE_LIMIT = 100  # запросов в минуту
+DEFAULT_MAX_HISTORY_MESSAGES = 10  # максимум сообщений в истории
 
 
 class Settings(BaseSettings):
@@ -75,6 +76,14 @@ class Settings(BaseSettings):
         default=DEFAULT_CACHE_TTL, ge=0, description="TTL кэша в секундах"
     )
     enable_cache: bool = Field(default=True, description="Включить кэширование")
+    
+    # История сообщений
+    max_history_messages: int = Field(
+        default=DEFAULT_MAX_HISTORY_MESSAGES, 
+        ge=1, 
+        le=50, 
+        description="Максимальное количество сообщений в истории"
+    )
 
     # RAG настройки
     rag_chunk_size: int = Field(

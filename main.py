@@ -32,6 +32,7 @@ from src.middleware.security_headers import (
     DDoSProtectionMiddleware,
     SecurityHeadersMiddleware,
 )
+from src.middleware.message_history import MessageHistoryManager
 from src.models.message import (
     ChatRequest,
     ErrorResponse,
@@ -311,11 +312,10 @@ async def health_check():
     return HealthResponse(status="ok", uptime=uptime, services=services_status)
 
 
-@app.post("/chat", response_model=MessageResponse)
-async def chat(request: ChatRequest, settings: Settings = Depends(get_settings)):
+async def _chat_handler(request: ChatRequest, settings: Settings):
     """
-    Обработка запроса к чат-боту с улучшенной обработкой ошибок.
-
+    Общий обработчик для чат запросов.
+    
     Args:
         request: Запрос с историей сообщений
         settings: Настройки приложения
@@ -332,6 +332,14 @@ async def chat(request: ChatRequest, settings: Settings = Depends(get_settings))
     start_time_request = time.time()
 
     try:
+        # Инициализируем менеджер истории сообщений
+        history_manager = MessageHistoryManager(max_messages=settings.max_history_messages)
+        
+        # Обрезаем историю сообщений до 10 последних
+        trimmed_messages = history_manager.trim_messages(request.messages)
+        request.messages = trimmed_messages
+        
+        logger.info(f"История сообщений обрезана: {len(request.messages)} сообщений")
         # Проверяем кэш, если использование кэша включено
         cached_response = None
         if request.use_cache and cache_service and settings.enable_cache:
@@ -394,6 +402,22 @@ async def chat(request: ChatRequest, settings: Settings = Depends(get_settings))
     except Exception as e:
         logger.error(f"Неожиданная ошибка в chat endpoint: {str(e)}", exc_info=True)
         raise OpenAIError(f"Внутренняя ошибка при обработке запроса: {str(e)}")
+
+
+@app.post("/chat", response_model=MessageResponse)
+async def chat(request: ChatRequest, settings: Settings = Depends(get_settings)):
+    """
+    Обработка запроса к чат-боту (основной эндпоинт).
+    """
+    return await _chat_handler(request, settings)
+
+
+@app.post("/api/chat", response_model=MessageResponse)
+async def api_chat(request: ChatRequest, settings: Settings = Depends(get_settings)):
+    """
+    Обработка запроса к чат-боту (альтернативный эндпоинт для фронтенда).
+    """
+    return await _chat_handler(request, settings)
 
 
 @app.get("/cache/stats")
