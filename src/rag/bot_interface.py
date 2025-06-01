@@ -3,6 +3,7 @@
 """
 
 import os
+import re
 from typing import Any, Dict, List, Optional, Union
 
 from langchain.schema import Document
@@ -35,6 +36,65 @@ class BotInterface:
         self.model_name = model_name
         self.temperature = temperature
         self.max_tokens = max_tokens
+
+    def _clean_markdown(self, text: str) -> str:
+        """
+        Очистить текст от markdown символов.
+        
+        Args:
+            text: Текст с markdown разметкой
+            
+        Returns:
+            str: Очищенный текст
+        """
+        if not text:
+            return text
+            
+        # Удаляем заголовки (# ## ### и т.д.)
+        text = re.sub(r'^#{1,6}\s+', '', text, flags=re.MULTILINE)
+        
+        # Удаляем жирный текст (**text** или __text__)
+        text = re.sub(r'\*\*(.*?)\*\*', r'\1', text)
+        text = re.sub(r'__(.*?)__', r'\1', text)
+        
+        # Удаляем курсив (*text* или _text_)
+        text = re.sub(r'\*(.*?)\*', r'\1', text)
+        text = re.sub(r'_(.*?)_', r'\1', text)
+        
+        # Удаляем зачеркнутый текст (~~text~~)
+        text = re.sub(r'~~(.*?)~~', r'\1', text)
+        
+        # Удаляем код (`code` или ```code```)
+        text = re.sub(r'`{1,3}[^`]*`{1,3}', '', text)
+        
+        # Удаляем ссылки [text](url)
+        text = re.sub(r'\[([^\]]+)\]\([^\)]+\)', r'\1', text)
+        
+        # Удаляем изображения ![alt](url)
+        text = re.sub(r'!\[([^\]]*)\]\([^\)]+\)', r'\1', text)
+        
+        # Удаляем горизонтальные линии (--- или ***)
+        text = re.sub(r'^[-*]{3,}$', '', text, flags=re.MULTILINE)
+        
+        # Удаляем маркеры списков (- * +)
+        text = re.sub(r'^[\s]*[-*+]\s+', '', text, flags=re.MULTILINE)
+        
+        # Удаляем нумерованные списки (1. 2. и т.д.)
+        text = re.sub(r'^[\s]*\d+\.\s+', '', text, flags=re.MULTILINE)
+        
+        # Удаляем цитаты (> text)
+        text = re.sub(r'^>\s*', '', text, flags=re.MULTILINE)
+        
+        # Удаляем таблицы (строки с |)
+        text = re.sub(r'^\|.*\|$', '', text, flags=re.MULTILINE)
+        text = re.sub(r'^[\s]*[-|:]+[\s]*$', '', text, flags=re.MULTILINE)
+        
+        # Удаляем лишние пробелы и переносы строк
+        text = re.sub(r'\n{3,}', '\n\n', text)
+        text = re.sub(r'^\s+', '', text, flags=re.MULTILINE)
+        text = re.sub(r'\s+$', '', text, flags=re.MULTILINE)
+        
+        return text.strip()
 
     def process_query(
         self,
@@ -73,7 +133,7 @@ class BotInterface:
 Твои ответы должны быть вежливыми, информативными и полезными.
 Не выдумывай информацию.
 Всегда отвечай на русском языке.
-"""
+Отвечай простым текстом без использования markdown разметки."""
 
         # Формируем запрос к модели
         messages = [
@@ -92,7 +152,11 @@ class BotInterface:
             max_tokens=self.max_tokens,
         )
 
-        return response.choices[0].message.content
+        # Получаем ответ и очищаем от markdown
+        raw_response = response.choices[0].message.content
+        cleaned_response = self._clean_markdown(raw_response)
+        
+        return cleaned_response
 
     def _format_context(self, documents: List[Document]) -> str:
         """

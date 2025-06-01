@@ -7,7 +7,7 @@ from typing import Dict, List, Optional, Union
 
 from langchain.embeddings.base import Embeddings
 from langchain.schema import Document
-from langchain.vectorstores import FAISS, Chroma
+from langchain_community.vectorstores import FAISS, Chroma
 
 
 class VectorStore:
