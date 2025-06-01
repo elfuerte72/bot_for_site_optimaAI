@@ -3,15 +3,23 @@
 Загружает настройки из переменных окружения с валидацией.
 """
 
+import json
+import os
 from functools import lru_cache
 from typing import List, Optional
 
-from dotenv import load_dotenv
 from pydantic import ConfigDict, Field, field_validator
 from pydantic_settings import BaseSettings
 
-# Загрузка переменных окружения из файла .env
-load_dotenv()
+# Условная загрузка .env файла только для локальной разработки
+# В продакшене (Heroku) переменная DYNO будет установлена
+if os.getenv("DYNO") is None:
+    try:
+        from dotenv import load_dotenv
+        load_dotenv()
+    except ImportError:
+        # python-dotenv может отсутствовать в продакшене
+        pass
 
 # Константы
 DEFAULT_GPT_MODEL = "gpt-4o-nano"
@@ -57,11 +65,13 @@ class Settings(BaseSettings):
     app_name: str = Field(default="OptimaAI Bot", description="Название приложения")
     debug: bool = Field(default=False, description="Режим отладки")
     host: str = Field(default="0.0.0.0", description="Хост для запуска")
-    port: int = Field(default=8000, ge=1, le=65535, description="Порт для запуска")
+    # Порт читается из переменной окружения PORT (Heroku устанавливает автоматически)
+    port: int = Field(default_factory=lambda: int(os.getenv("PORT", "8000")), ge=1, le=65535, description="Порт для запуска")
 
     # Безопасность
+    # CORS origins читаются из JSON строки в переменной окружения
     allowed_origins: List[str] = Field(
-        default_factory=lambda: ["http://localhost:3000", "http://localhost:3001"],
+        default_factory=lambda: _parse_allowed_origins(),
         description="Разрешённые домены для CORS",
     )
     api_key: Optional[str] = Field(
@@ -126,6 +136,32 @@ class Settings(BaseSettings):
         case_sensitive=False,
         env_prefix="",
     )
+
+
+def _parse_allowed_origins() -> List[str]:
+    """
+    Парсинг ALLOWED_ORIGINS из переменной окружения.
+    Ожидается JSON строка, например: '["https://example.com", "https://www.example.com"]'
+    
+    Returns:
+        List[str]: Список разрешённых origins
+    """
+    origins_raw = os.getenv("ALLOWED_ORIGINS", '[]')
+    
+    # Если это не JSON, а строка с запятыми (для совместимости)
+    if not origins_raw.startswith('['):
+        origins = [origin.strip() for origin in origins_raw.split(',') if origin.strip()]
+        return origins if origins else ["http://localhost:3000"]
+    
+    try:
+        origins = json.loads(origins_raw)
+        if not isinstance(origins, list):
+            raise ValueError("ALLOWED_ORIGINS должен быть JSON массивом")
+        return origins if origins else ["http://localhost:3000"]
+    except (json.JSONDecodeError, ValueError) as e:
+        # В случае ошибки парсинга используем localhost для разработки
+        print(f"⚠️ Ошибка парсинга ALLOWED_ORIGINS: {e}. Используется localhost.")
+        return ["http://localhost:3000"]
 
 
 @lru_cache()
