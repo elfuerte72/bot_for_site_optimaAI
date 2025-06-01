@@ -1,0 +1,35 @@
+# Основные зависимости
+fastapi==0.115.0
+uvicorn[standard]==0.34.0
+pydantic==2.11.0
+pydantic-settings==2.0.0
+python-dotenv==1.1.0
+
+# OpenAI и AI зависимости
+openai>=1.82.0
+tiktoken>=0.6.0
+
+# LangChain для RAG
+langchain>=0.2.1
+langchain-openai>=0.1.1
+langchain-community>=0.2.1
+langchain-text-splitters>=0.2.1
+
+# Векторные базы данных
+chromadb>=0.4.22
+faiss-cpu>=1.8.0
+
+# Обработка документов
+pypdf>=4.0.1
+
+# Безопасность и валидация
+email-validator>=2.0.0
+python-multipart>=0.0.6
+
+# Мониторинг и логирование
+structlog>=23.1.0
+prometheus-client>=0.17.0
+
+# Дополнительные утилиты
+tenacity>=8.2.0
+aiofiles>=23.1.0
