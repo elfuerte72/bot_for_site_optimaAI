@@ -3,6 +3,7 @@
 """
 
 import logging
+import re
 import time
 from typing import Any, Dict, List, Optional
 
@@ -44,6 +45,75 @@ class OpenAIService:
         except Exception as e:
             self.logger.error(f"Ошибка при инициализации RAG сервиса: {str(e)}")
             self.use_rag = False
+
+    def _clean_markdown(self, text: str) -> str:
+        """
+        Очистить текст от markdown символов и правильно отформатировать.
+        
+        Args:
+            text: Текст с markdown разметкой
+            
+        Returns:
+            str: Очищенный и отформатированный текст
+        """
+        if not text:
+            return text
+            
+        # Удаляем заголовки (# ## ### и т.д.)
+        text = re.sub(r'^#{1,6}\s+', '', text, flags=re.MULTILINE)
+        
+        # Обрабатываем жирный текст (**text** или __text__) - убираем звездочки, но оставляем текст
+        text = re.sub(r'\*\*(.*?)\*\*', r'\1', text)
+        text = re.sub(r'__(.*?)__', r'\1', text)
+        
+        # Обрабатываем курсив (*text* или _text_) - убираем символы, но оставляем текст
+        text = re.sub(r'(?<!\*)\*([^*]+?)\*(?!\*)', r'\1', text)
+        text = re.sub(r'(?<!_)_([^_]+?)_(?!_)', r'\1', text)
+        
+        # Удаляем зачеркнутый текст (~~text~~)
+        text = re.sub(r'~~(.*?)~~', r'\1', text)
+        
+        # Удаляем код (`code` или ```code```)
+        text = re.sub(r'`{1,3}[^`]*`{1,3}', '', text)
+        
+        # Удаляем ссылки [text](url) - оставляем только текст
+        text = re.sub(r'\[([^\]]+)\]\([^\)]+\)', r'\1', text)
+        
+        # Удаляем изображения ![alt](url)
+        text = re.sub(r'!\[([^\]]*)\]\([^\)]+\)', r'\1', text)
+        
+        # Удаляем горизонтальные линии (--- или ***)
+        text = re.sub(r'^[-*]{3,}$', '', text, flags=re.MULTILINE)
+        
+        # Обрабатываем маркированные списки (- * +) - заменяем на абзацы с отступами
+        text = re.sub(r'^[\s]*[-*+]\s+(.+)$', r'\n• \1', text, flags=re.MULTILINE)
+        
+        # Обрабатываем нумерованные списки (1. 2. и т.д.) - заменяем на абзацы с номерами
+        def replace_numbered_list(match):
+            number = match.group(1)
+            content = match.group(2)
+            return f'\n{number}. {content}'
+        
+        text = re.sub(r'^[\s]*(\d+)\.[\s]+(.+)$', replace_numbered_list, text, flags=re.MULTILINE)
+        
+        # Удаляем цитаты (> text)
+        text = re.sub(r'^>\s*', '', text, flags=re.MULTILINE)
+        
+        # Удаляем таблицы (строки с |)
+        text = re.sub(r'^\|.*\|$', '', text, flags=re.MULTILINE)
+        text = re.sub(r'^[\s]*[-|:]+[\s]*$', '', text, flags=re.MULTILINE)
+        
+        # Нормализуем переносы строк - заменяем множественные переносы на двойные
+        text = re.sub(r'\n{3,}', '\n\n', text)
+        
+        # Убираем лишние пробелы в начале и конце строк
+        text = re.sub(r'^\s+', '', text, flags=re.MULTILINE)
+        text = re.sub(r'\s+$', '', text, flags=re.MULTILINE)
+        
+        # Добавляем отступы после точек в списках для лучшей читаемости
+        text = re.sub(r'(\d+\.)([^\s])', r'\1 \2', text)
+        
+        return text.strip()
 
     async def generate_response(
         self, messages: List[Message], stream: bool = False
@@ -143,8 +213,12 @@ class OpenAIService:
             process_time = time.time() - start_time
             self.logger.info(f"OpenAI API response received in {process_time:.2f}s")
 
+            # Получаем ответ и очищаем от markdown
+            raw_content = response.choices[0].message.content or ""
+            cleaned_content = self._clean_markdown(raw_content)
+
             assistant_message = Message(
-                role="assistant", content=response.choices[0].message.content or ""
+                role="assistant", content=cleaned_content
             )
 
             return MessageResponse(
@@ -211,7 +285,10 @@ class OpenAIService:
                 f"OpenAI API stream completed in {process_time:.2f}s with {chunk_count} chunks"
             )
 
-            assistant_message = Message(role="assistant", content=collected_content)
+            # Очищаем собранный контент от markdown
+            cleaned_content = self._clean_markdown(collected_content)
+
+            assistant_message = Message(role="assistant", content=cleaned_content)
 
             return MessageResponse(
                 message=assistant_message,

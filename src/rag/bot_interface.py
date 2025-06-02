@@ -39,13 +39,13 @@ class BotInterface:
 
     def _clean_markdown(self, text: str) -> str:
         """
-        Очистить текст от markdown символов.
+        Очистить текст от markdown символов и правильно отформатировать.
         
         Args:
             text: Текст с markdown разметкой
             
         Returns:
-            str: Очищенный текст
+            str: Очищенный и отформатированный текст
         """
         if not text:
             return text
@@ -53,13 +53,13 @@ class BotInterface:
         # Удаляем заголовки (# ## ### и т.д.)
         text = re.sub(r'^#{1,6}\s+', '', text, flags=re.MULTILINE)
         
-        # Удаляем жирный текст (**text** или __text__)
+        # Обрабатываем жирный текст (**text** или __text__) - убираем звездочки, но оставляем текст
         text = re.sub(r'\*\*(.*?)\*\*', r'\1', text)
         text = re.sub(r'__(.*?)__', r'\1', text)
         
-        # Удаляем курсив (*text* или _text_)
-        text = re.sub(r'\*(.*?)\*', r'\1', text)
-        text = re.sub(r'_(.*?)_', r'\1', text)
+        # Обрабатываем курсив (*text* или _text_) - убираем символы, но оставляем текст
+        text = re.sub(r'(?<!\*)\*([^*]+?)\*(?!\*)', r'\1', text)
+        text = re.sub(r'(?<!_)_([^_]+?)_(?!_)', r'\1', text)
         
         # Удаляем зачеркнутый текст (~~text~~)
         text = re.sub(r'~~(.*?)~~', r'\1', text)
@@ -67,7 +67,7 @@ class BotInterface:
         # Удаляем код (`code` или ```code```)
         text = re.sub(r'`{1,3}[^`]*`{1,3}', '', text)
         
-        # Удаляем ссылки [text](url)
+        # Удаляем ссылки [text](url) - оставляем только текст
         text = re.sub(r'\[([^\]]+)\]\([^\)]+\)', r'\1', text)
         
         # Удаляем изображения ![alt](url)
@@ -76,11 +76,16 @@ class BotInterface:
         # Удаляем горизонтальные линии (--- или ***)
         text = re.sub(r'^[-*]{3,}$', '', text, flags=re.MULTILINE)
         
-        # Удаляем маркеры списков (- * +)
-        text = re.sub(r'^[\s]*[-*+]\s+', '', text, flags=re.MULTILINE)
+        # Обрабатываем маркированные списки (- * +) - заменяем на абзацы с отступами
+        text = re.sub(r'^[\s]*[-*+]\s+(.+)$', r'\n• \1', text, flags=re.MULTILINE)
         
-        # Удаляем нумерованные списки (1. 2. и т.д.)
-        text = re.sub(r'^[\s]*\d+\.\s+', '', text, flags=re.MULTILINE)
+        # Обрабатываем нумерованные списки (1. 2. и т.д.) - заменяем на абзацы с номерами
+        def replace_numbered_list(match):
+            number = match.group(1)
+            content = match.group(2)
+            return f'\n{number}. {content}'
+        
+        text = re.sub(r'^[\s]*(\d+)\.[\s]+(.+)$', replace_numbered_list, text, flags=re.MULTILINE)
         
         # Удаляем цитаты (> text)
         text = re.sub(r'^>\s*', '', text, flags=re.MULTILINE)
@@ -89,10 +94,15 @@ class BotInterface:
         text = re.sub(r'^\|.*\|$', '', text, flags=re.MULTILINE)
         text = re.sub(r'^[\s]*[-|:]+[\s]*$', '', text, flags=re.MULTILINE)
         
-        # Удаляем лишние пробелы и переносы строк
+        # Нормализуем переносы строк - заменяем множественные переносы на двойные
         text = re.sub(r'\n{3,}', '\n\n', text)
+        
+        # Убираем лишние пробелы в начале и конце строк
         text = re.sub(r'^\s+', '', text, flags=re.MULTILINE)
         text = re.sub(r'\s+$', '', text, flags=re.MULTILINE)
+        
+        # Добавляем отступы после точек в списках для лучшей читаемости
+        text = re.sub(r'(\d+\.)([^\s])', r'\1 \2', text)
         
         return text.strip()
 
@@ -133,7 +143,11 @@ class BotInterface:
 Твои ответы должны быть вежливыми, информативными и полезными.
 Не выдумывай информацию.
 Всегда отвечай на русском языке.
-Отвечай простым текстом без использования markdown разметки."""
+
+ВАЖНО: Отвечай простым текстом БЕЗ использования markdown разметки.
+НЕ используй символы: **, *, __, _, ~~, `, #, -, +, >, |
+Если нужно перечислить пункты, используй обычные абзацы с номерами или символом •
+Каждый пункт списка должен начинаться с новой строки."""
 
         # Формируем запрос к модели
         messages = [
