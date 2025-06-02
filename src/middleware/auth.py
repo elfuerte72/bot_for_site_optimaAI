@@ -30,11 +30,14 @@ class APIKeyAuth:
 
         # Публичные эндпоинты, не требующие аутентификации
         self.public_endpoints: Set[str] = {
+            "/",
             "/health",
             "/docs",
             "/openapi.json",
             "/redoc",
             "/metrics",
+            "/favicon.ico",
+            "/security/status",
         }
 
         logger.info(

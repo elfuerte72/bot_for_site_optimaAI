@@ -280,6 +280,23 @@ setup_middleware(app, settings)
 setup_exception_handlers(app)
 
 
+@app.get("/")
+async def root():
+    """
+    Корневой эндпоинт API.
+    
+    Returns:
+        Dict: Информация о API
+    """
+    return {
+        "message": "OptimaAI Bot API",
+        "version": "2.0.0",
+        "status": "running",
+        "docs": "/docs",
+        "health": "/health"
+    }
+
+
 @app.get("/health", response_model=HealthResponse)
 async def health_check():
     """
