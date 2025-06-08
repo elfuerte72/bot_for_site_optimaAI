@@ -60,14 +60,21 @@ class RAGService:
                 chunk_overlap=200,
             )
 
-            # Проверяем, существует ли индекс
-            index_exists = (
-                os.path.exists(self.persist_dir) and 
-                len(os.listdir(self.persist_dir)) > 0
-            )
+            # На Heroku всегда создаем новый индекс из-за проблем совместимости версий
+            is_heroku = os.environ.get('DYNO') is not None
             
-            # Если индекса нет, принудительно создаем его
-            force_reload = not index_exists
+            if is_heroku:
+                # На Heroku принудительно пересоздаем индекс
+                force_reload = True
+                self.logger.info("Heroku окружение обнаружено - принудительное создание индекса")
+            else:
+                # Локально проверяем, существует ли индекс
+                index_exists = (
+                    os.path.exists(self.persist_dir) and 
+                    len(os.listdir(self.persist_dir)) > 0
+                )
+                force_reload = not index_exists
+                self.logger.info(f"Локальное окружение - force_reload: {force_reload}")
             
             # Загружаем и индексируем документы
             self.rag_system.load_and_index_documents(force_reload=force_reload)
