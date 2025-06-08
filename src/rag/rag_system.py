@@ -117,7 +117,16 @@ class RAGSystem:
             self.retriever = Retriever(vector_store)
             print(f"Индекс загружен из {self.persist_dir}")
         except Exception as e:
-            raise ValueError(f"Ошибка при загрузке индекса: {str(e)}")
+            # Если загрузка индекса не удалась, пересоздаем его
+            print(f"Не удалось загрузить существующий индекс: {str(e)}")
+            print("Пересоздание индекса...")
+            # Очищаем директорию индекса
+            import shutil
+            if os.path.exists(self.persist_dir):
+                shutil.rmtree(self.persist_dir)
+            os.makedirs(self.persist_dir, exist_ok=True)
+            # Принудительно пересоздаем индекс
+            self.load_and_index_documents(force_reload=True)
 
     def query(
         self,

@@ -11,6 +11,15 @@ from typing import Any, Dict, List, Optional
 from src.models.message import Message
 
 
+class DateTimeEncoder(json.JSONEncoder):
+    """Custom JSON encoder для сериализации datetime объектов."""
+    
+    def default(self, obj: Any) -> Any:
+        if isinstance(obj, datetime):
+            return obj.isoformat()
+        return super().default(obj)
+
+
 class CacheService:
     """
     Сервис для кэширования ответов от OpenAI API.
@@ -39,7 +48,7 @@ class CacheService:
         """
         # Преобразуем сообщения в строку для хэширования
         messages_str = json.dumps(
-            [msg.model_dump() for msg in messages], sort_keys=True
+            [msg.model_dump() for msg in messages], sort_keys=True, cls=DateTimeEncoder
         )
         return hashlib.md5(messages_str.encode()).hexdigest()
 
@@ -75,7 +84,9 @@ class CacheService:
             data: Данные для кэширования
         """
         key = self._generate_key(messages)
-        self._cache[key] = {"data": data, "timestamp": time.time()}
+        # Преобразуем datetime объекты в строки перед сохранением
+        serializable_data = json.loads(json.dumps(data, cls=DateTimeEncoder))
+        self._cache[key] = {"data": serializable_data, "timestamp": time.time()}
 
     def clear_expired(self) -> int:
         """
