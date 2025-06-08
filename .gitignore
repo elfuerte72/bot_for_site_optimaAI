@@ -42,7 +42,7 @@ ehthumbs.db
 Thumbs.db
 
 # Project specific
-rag_index/
+
 .env
 .env.fixed
 .env.local
