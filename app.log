@@ -5804,3 +5804,71 @@ fastapi.exceptions.HTTPException: 401: {'error': 'Неверный API ключ'
 2025-06-08 12:28:02,652 - api - INFO - Response: POST /chat completed in 4.911s with status 200
 2025-06-08 12:28:11,042 - main - INFO - Завершение работы приложения
 2025-06-08 12:28:11,043 - main - INFO - Кэш очищен
+2025-06-08 19:00:45,415 - src.security.config_validator - INFO - ✅ Оценка безопасности: 90/100 (ОТЛИЧНО). Предупреждений: 2.
+2025-06-08 19:00:45,461 - src.middleware.auth - INFO - API Key аутентификация: включена
+2025-06-08 19:00:45,462 - main - INFO - Запуск приложения OptimaAI Bot
+2025-06-08 19:00:45,462 - main - INFO - Кэш-сервис инициализирован
+2025-06-08 19:00:45,462 - src.security.config_validator - INFO - ✅ Оценка безопасности: 90/100 (ОТЛИЧНО). Предупреждений: 2.
+2025-06-08 19:00:45,462 - main - INFO - Приложение успешно запущено
+2025-06-08 19:01:14,442 - api - INFO - Request: GET /health from 127.0.0.1
+2025-06-08 19:01:14,444 - api - INFO - Response: GET /health completed in 0.002s with status 200
+2025-06-08 19:01:14,448 - api - INFO - Request: POST /chat from 127.0.0.1
+2025-06-08 19:01:14,448 - src.middleware.auth - INFO - Успешная аутентификация для /chat
+2025-06-08 19:01:14,450 - main - INFO - История сообщений обрезана: 1 сообщений
+2025-06-08 19:01:14,488 - src.services.rag_service - INFO - Инициализация RAG системы. Данные: /Users/maximpenkin/Documents/openai/site/backend/rag, Индекс: /Users/maximpenkin/Documents/openai/site/backend/rag_index
+2025-06-08 19:01:14,616 - src.services.rag_service - INFO - Локальное окружение - force_reload: False
+2025-06-08 19:01:14,618 - faiss.loader - INFO - Loading faiss.
+2025-06-08 19:01:14,653 - faiss.loader - INFO - Successfully loaded faiss.
+2025-06-08 19:01:14,657 - faiss - INFO - Failed to load GPU Faiss: name 'GpuIndexIVFFlat' is not defined. Will not load constructor refs for GPU indexes. This is only an error if you're trying to use GPU Faiss.
+2025-06-08 19:01:14,664 - src.services.rag_service - INFO - RAG система успешно инициализирована
+2025-06-08 19:01:14,664 - src.services.openai_service - INFO - RAG сервис успешно инициализирован
+2025-06-08 19:01:16,549 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+2025-06-08 19:01:19,612 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-06-08 19:01:19,623 - src.services.openai_service - INFO - Сгенерирован ответ с использованием RAG системы: 266 символов
+2025-06-08 19:01:19,628 - api - INFO - Response: POST /chat completed in 5.180s with status 200
+2025-06-08 19:01:21,073 - api - INFO - Request: GET /health from 127.0.0.1
+2025-06-08 19:01:21,075 - api - INFO - Response: GET /health completed in 0.001s with status 200
+2025-06-08 19:01:21,210 - api - INFO - Request: POST /chat from 127.0.0.1
+2025-06-08 19:01:21,210 - src.middleware.auth - INFO - Успешная аутентификация для /chat
+2025-06-08 19:01:21,211 - main - INFO - История сообщений обрезана: 1 сообщений
+2025-06-08 19:01:21,221 - src.services.rag_service - INFO - Инициализация RAG системы. Данные: /Users/maximpenkin/Documents/openai/site/backend/rag, Индекс: /Users/maximpenkin/Documents/openai/site/backend/rag_index
+2025-06-08 19:01:21,236 - src.services.rag_service - INFO - Локальное окружение - force_reload: False
+2025-06-08 19:01:21,243 - src.services.rag_service - INFO - RAG система успешно инициализирована
+2025-06-08 19:01:21,243 - src.services.openai_service - INFO - RAG сервис успешно инициализирован
+2025-06-08 19:01:21,956 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+2025-06-08 19:01:27,311 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-06-08 19:01:27,313 - src.services.openai_service - INFO - Сгенерирован ответ с использованием RAG системы: 642 символов
+2025-06-08 19:01:27,315 - api - INFO - Response: POST /chat completed in 6.106s with status 200
+2025-06-08 19:02:12,493 - api - INFO - Request: POST /chat from 127.0.0.1
+2025-06-08 19:02:12,497 - src.middleware.auth - INFO - Успешная аутентификация для /chat
+2025-06-08 19:02:12,503 - main - INFO - История сообщений обрезана: 1 сообщений
+2025-06-08 19:02:12,516 - src.services.rag_service - INFO - Инициализация RAG системы. Данные: /Users/maximpenkin/Documents/openai/site/backend/rag, Индекс: /Users/maximpenkin/Documents/openai/site/backend/rag_index
+2025-06-08 19:02:12,531 - src.services.rag_service - INFO - Локальное окружение - force_reload: False
+2025-06-08 19:02:12,544 - src.services.rag_service - INFO - RAG система успешно инициализирована
+2025-06-08 19:02:12,544 - src.services.openai_service - INFO - RAG сервис успешно инициализирован
+2025-06-08 19:02:13,261 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+2025-06-08 19:02:19,995 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-06-08 19:02:19,999 - src.services.openai_service - INFO - Сгенерирован ответ с использованием RAG системы: 782 символов
+2025-06-08 19:02:20,004 - api - INFO - Response: POST /chat completed in 7.512s with status 200
+2025-06-08 19:05:29,035 - api - INFO - Request: POST /chat from 127.0.0.1
+2025-06-08 19:05:29,038 - src.middleware.auth - INFO - Успешная аутентификация для /chat
+2025-06-08 19:05:29,042 - main - INFO - История сообщений обрезана: 3 сообщений
+2025-06-08 19:05:29,057 - src.services.rag_service - INFO - Инициализация RAG системы. Данные: /Users/maximpenkin/Documents/openai/site/backend/rag, Индекс: /Users/maximpenkin/Documents/openai/site/backend/rag_index
+2025-06-08 19:05:29,073 - src.services.rag_service - INFO - Локальное окружение - force_reload: False
+2025-06-08 19:05:29,083 - src.services.rag_service - INFO - RAG система успешно инициализирована
+2025-06-08 19:05:29,083 - src.services.openai_service - INFO - RAG сервис успешно инициализирован
+2025-06-08 19:05:30,296 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+2025-06-08 19:05:35,039 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-06-08 19:05:35,044 - src.services.openai_service - INFO - Сгенерирован ответ с использованием RAG системы: 698 символов
+2025-06-08 19:05:35,051 - api - INFO - Response: POST /chat completed in 6.017s with status 200
+2025-06-08 19:05:59,386 - api - INFO - Request: POST /chat from 127.0.0.1
+2025-06-08 19:05:59,388 - src.middleware.auth - INFO - Успешная аутентификация для /chat
+2025-06-08 19:05:59,389 - main - INFO - История сообщений обрезана: 5 сообщений
+2025-06-08 19:05:59,403 - src.services.rag_service - INFO - Инициализация RAG системы. Данные: /Users/maximpenkin/Documents/openai/site/backend/rag, Индекс: /Users/maximpenkin/Documents/openai/site/backend/rag_index
+2025-06-08 19:05:59,429 - src.services.rag_service - INFO - Локальное окружение - force_reload: False
+2025-06-08 19:05:59,437 - src.services.rag_service - INFO - RAG система успешно инициализирована
+2025-06-08 19:05:59,437 - src.services.openai_service - INFO - RAG сервис успешно инициализирован
+2025-06-08 19:06:00,023 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+2025-06-08 19:06:02,185 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-06-08 19:06:02,190 - src.services.openai_service - INFO - Сгенерирован ответ с использованием RAG системы: 207 символов
+2025-06-08 19:06:02,201 - api - INFO - Response: POST /chat completed in 2.815s with status 200
