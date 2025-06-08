@@ -60,8 +60,17 @@ class RAGService:
                 chunk_overlap=200,
             )
 
-            # Загружаем и индексируем документы (если индекс не существует)
-            self.rag_system.load_and_index_documents(force_reload=False)
+            # Проверяем, существует ли индекс
+            index_exists = (
+                os.path.exists(self.persist_dir) and 
+                len(os.listdir(self.persist_dir)) > 0
+            )
+            
+            # Если индекса нет, принудительно создаем его
+            force_reload = not index_exists
+            
+            # Загружаем и индексируем документы
+            self.rag_system.load_and_index_documents(force_reload=force_reload)
 
             # Создаем интерфейс бота
             self.bot_interface = BotInterface(
