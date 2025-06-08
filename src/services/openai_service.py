@@ -59,6 +59,8 @@ class OpenAIService:
         if not text:
             return text
             
+        self.logger.info(f"Очистка markdown: исходный текст {len(text)} символов")
+            
         # Удаляем заголовки (# ## ### и т.д.)
         text = re.sub(r'^#{1,6}\s+', '', text, flags=re.MULTILINE)
         
@@ -113,7 +115,9 @@ class OpenAIService:
         # Добавляем отступы после точек в списках для лучшей читаемости
         text = re.sub(r'(\d+\.)([^\s])', r'\1 \2', text)
         
-        return text.strip()
+        cleaned = text.strip()
+        self.logger.info(f"Очистка markdown: очищенный текст {len(cleaned)} символов")
+        return cleaned
 
     async def generate_response(
         self, messages: List[Message], stream: bool = False
