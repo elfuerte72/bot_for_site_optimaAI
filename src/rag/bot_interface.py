@@ -6,7 +6,7 @@ import os
 import re
 from typing import Any, Dict, List, Optional, Union
 
-from langchain.schema import Document
+from langchain_core.documents import Document
 from openai import OpenAI
 
 from .rag_system import RAGSystem

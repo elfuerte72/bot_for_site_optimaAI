@@ -5,8 +5,8 @@
 import os
 from typing import Dict, List, Optional, Union
 
-from langchain.embeddings.base import Embeddings
-from langchain.schema import Document
+from langchain_core.embeddings import Embeddings
+from langchain_core.documents import Document
 from langchain_community.vectorstores import FAISS, Chroma
 
 

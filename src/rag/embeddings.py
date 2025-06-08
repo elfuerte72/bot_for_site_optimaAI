@@ -4,7 +4,7 @@
 
 from typing import Dict, List, Optional, Union
 
-from langchain.embeddings.base import Embeddings
+from langchain_core.embeddings import Embeddings
 from langchain_openai import OpenAIEmbeddings
 
 

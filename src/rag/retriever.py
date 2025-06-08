@@ -4,8 +4,8 @@
 
 from typing import Any, Dict, List, Optional, Union
 
-from langchain.schema import Document
-from langchain.vectorstores.base import VectorStore
+from langchain_core.documents import Document
+from langchain_core.vectorstores import VectorStore
 
 
 class Retriever:
